@@ -93,7 +93,6 @@ class UploadManager
      */
     public function store(UploadedFile $file, ?string $path = null, string $ruleset = 'default', ?string $filename = null): string|false
     {
-        $this->assertValidFile($file);
         if (!$this->currentDriver) {
             $this->driver();
         }
@@ -111,18 +110,6 @@ class UploadManager
         $dateDir = basename($dir); // 目录名为日期
         $finalName = $finalFileName ?? basename($storedPath);
         return rtrim($accessPrefix, '/') . '/' . $dateDir . '/' . $finalName;
-    }
-
-    /**
-     * 类型检查，保证传入文件有效
-     * @param mixed $file
-     * @throws UploadException
-     */
-    protected function assertValidFile($file): void
-    {
-        if (!$file instanceof \Illuminate\Http\UploadedFile) {
-            throw new UploadException(__('kit::upload.invalid_file_type'));
-        }
     }
 
     /**
