@@ -15,7 +15,6 @@ namespace Valencio\LaravelKit\Upload;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Log;
 use Valencio\LaravelKit\Upload\Contracts\Uploader;
 use Valencio\LaravelKit\Upload\Drivers\LocalUploader;
 
@@ -71,7 +70,6 @@ class UploadManager
         $config = $this->getConfig($name);
 
         if (is_null($config)) {
-            Log::error('上传驱动未配置', ['driver' => $name]);
             throw new UploadException(__('kit::upload.driver_not_configured', ['driver' => $name]));
         }
 
@@ -81,14 +79,13 @@ class UploadManager
             return $this->$methodName($config);
         }
 
-        Log::error('上传驱动不支持', ['driver' => $name]);
         throw new UploadException(__('kit::upload.driver_not_supported', ['driver' => $name]));
     }
 
     /**
      * 存储文件
      * @param UploadedFile $file 待上传的文件对象
-     * @param string|null $path 存储目录（可选）
+     * @param string|null $path 存储目录（可选，优先级高于 storage_prefix）
      * @param string $ruleset 验证规则集
      * @param string|null $filename 自定义文件名（可选）
      * @return string|false
@@ -96,42 +93,42 @@ class UploadManager
      */
     public function store(UploadedFile $file, ?string $path = null, string $ruleset = 'default', ?string $filename = null): string|false
     {
-        // 1. 确保驱动已被选择，如果没有，使用默认驱动
         if (!$this->currentDriver) {
             $this->driver();
         }
-
-        // 2. 执行验证
         $this->validate($file, $ruleset);
 
-        // 3. 统一命名策略
+        // 统一生成存储目录（如 uploads/20251012）
+        $storagePrefix = $this->app['config']['kit.upload.storage_prefix'] ?? 'uploads';
+        $dateDir = date('Ymd');
+        $dir = $path ?: ($storagePrefix . '/' . $dateDir);
+
+        // 统一生成文件名
         if ($filename === null) {
             $naming = $this->app['config']['kit.upload.naming'] ?? 'random';
+            $ext = $file->getClientOriginalExtension();
             if ($naming === 'md5') {
-                $filename = md5_file($file->getRealPath()) . '.' . $file->getClientOriginalExtension();
+                $filename = md5_file($file->getRealPath() . time()) . '.' . $ext;
             } elseif ($naming === 'sha1') {
-                $filename = sha1_file($file->getRealPath()) . '.' . $file->getClientOriginalExtension();
+                $filename = sha1_file($file->getRealPath() . time() ). '.' . $ext;
             } else {
                 $filename = null; // 让驱动自己用默认
             }
         }
 
-        // 4. 调用驱动进行存储
-        try {
-            return $this->currentDriver->store($file, $path, $filename);
-        } catch (\Throwable $e) {
-            Log::error('文件上传失败', [
-                'file' => $file->getClientOriginalName(),
-                'path' => $path,
-                'filename' => $filename,
-                'exception' => $e
-            ]);
-            throw new UploadException(
-                __('kit::upload.upload_failed', ['msg' => $e->getMessage()]),
-                0,
-                $e
-            );
+        // 存储并返回物理路径
+        $storedPath = $this->currentDriver->store($file, $dir, $filename);
+        if ($storedPath === false) {
+            throw new UploadException(__('kit::upload.upload_failed', ['msg' => 'store 返回 false']));
         }
+
+        // 获取访问前缀（每个驱动私有）
+        $driverName = $this->currentDriver instanceof \Valencio\LaravelKit\Upload\Drivers\LocalUploader ? 'local' : null;
+        $driversConfig = $this->app['config']['kit.upload.drivers'] ?? [];
+        $accessPrefix = $driversConfig[$driverName]['access_prefix'] ?? '/storage/uploads';
+
+        // 返回可访问路径（如 /storage/uploads/20251012/文件名）
+        return rtrim($accessPrefix, '/') . '/' . $dateDir . '/' . ($filename ?? basename($storedPath));
     }
 
     /**
@@ -165,7 +162,6 @@ class UploadManager
 
         if (empty($rules)) {
             // 如果找不到指定的规则集，可以抛出异常或直接忽略
-            Log::warning('上传验证规则集未找到', ['ruleset' => $ruleset]);
             return;
         }
 
@@ -173,11 +169,6 @@ class UploadManager
         try {
             (new Validator())->execute($file, $rules);
         } catch (\Throwable $e) {
-            Log::error('文件验证失败', [
-                'file' => $file->getClientOriginalName(),
-                'ruleset' => $ruleset,
-                'exception' => $e
-            ]);
             throw new UploadException(
                 __('kit::upload.validation_failed', ['msg' => $e->getMessage()]),
                 0,

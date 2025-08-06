@@ -16,16 +16,20 @@ use Valencio\LaravelKit\Upload\Enums\Engine;
 
 return [
     // 默认上传驱动
-    'default'    => Engine::Local,
+    'default'        => Engine::Local,
+
+    // 全局物理存储前缀（所有引擎共用，决定实际存储目录）
+    'storage_prefix' => 'uploads',
 
     // 文件命名策略（如 random, md5, sha1）
-    'naming'     => 'md5',
+    'naming'         => 'random',
 
     // 各个驱动的配置
-    'drivers'    => [
+    'drivers'        => [
         Engine::Local->value => [
-            'disk' => 'public',
-            'prefix' => '/storage/uploads', // 返回路径的前缀
+            'disk'         => 'public',
+            // 访问前缀（返回给前端的路径，每个驱动可自定义）
+            'access_prefix' => '/storage/uploads',
         ],
     ],
 
