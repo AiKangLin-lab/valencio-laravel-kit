@@ -1,0 +1,36 @@
+# Laravel & PHP
+/vendor/
+/node_modules/
+/.env
+/.env.*
+/.idea/
+/.vscode/
+/.phpunit.result.cache
+/storage/
+/bootstrap/cache/
+composer.lock
+.DS_Store
+Thumbs.db
+*.log
+*.swp
+*.swo
+*.bak
+*.tmp
+*.cache
+/.coverage
+/.php_cs.cache
+/public/storage
+
+# Ignore test, build, and local files
+/tests/
+/.coverage/
+/.build/
+/.local/
+
+# Ignore IDE and OS files
+*.iml
+*.sublime*
+*.komodoproject
+*.tmproj
+*.vscode
+*.code-workspace
