@@ -16,9 +16,8 @@
   ],
   "require": {
     "php": "^8.2",
-    "illuminate/support": "^12.0",
-    "illuminate/http": "^12.0",
-    "illuminate/filesystem": "^12.0"
+    "laravel/framework": "^12.0",
+    "laravel/tinker": "^2.10.1"
   },
   "extra": {
     "laravel": {
