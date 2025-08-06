@@ -93,42 +93,78 @@ class UploadManager
      */
     public function store(UploadedFile $file, ?string $path = null, string $ruleset = 'default', ?string $filename = null): string|false
     {
+        $this->assertValidFile($file);
         if (!$this->currentDriver) {
             $this->driver();
         }
         $this->validate($file, $ruleset);
 
-        // 统一生成存储目录（如 uploads/20251012）
-        $storagePrefix = $this->app['config']['kit.upload.storage_prefix'] ?? 'uploads';
-        $dateDir = date('Ymd');
-        $dir = $path ?: ($storagePrefix . '/' . $dateDir);
+        $dir = $this->buildStorageDir($path);
+        $finalFileName = $this->buildFileName($file, $filename);
 
-        // 统一生成文件名
-        if ($filename === null) {
-            $naming = $this->app['config']['kit.upload.naming'] ?? 'random';
-            $ext = $file->getClientOriginalExtension();
-            if ($naming === 'md5') {
-                $filename = md5_file($file->getRealPath() . time()) . '.' . $ext;
-            } elseif ($naming === 'sha1') {
-                $filename = sha1_file($file->getRealPath() . time() ). '.' . $ext;
-            } else {
-                $filename = null; // 让驱动自己用默认
-            }
-        }
-
-        // 存储并返回物理路径
-        $storedPath = $this->currentDriver->store($file, $dir, $filename);
+        $storedPath = $this->currentDriver->store($file, $dir, $finalFileName);
         if ($storedPath === false) {
             throw new UploadException(__('kit::upload.upload_failed', ['msg' => 'store 返回 false']));
         }
 
-        // 获取访问前缀（每个驱动私有）
+        $accessPrefix = $this->getAccessPrefix();
+        $dateDir = basename($dir); // 目录名为日期
+        $finalName = $finalFileName ?? basename($storedPath);
+        return rtrim($accessPrefix, '/') . '/' . $dateDir . '/' . $finalName;
+    }
+
+    /**
+     * 类型检查，保证传入文件有效
+     * @param mixed $file
+     * @throws UploadException
+     */
+    protected function assertValidFile($file): void
+    {
+        if (!$file instanceof \Illuminate\Http\UploadedFile) {
+            throw new UploadException(__('kit::upload.invalid_file_type'));
+        }
+    }
+
+    /**
+     * 生成存储目录
+     * @param string|null $path
+     * @return string
+     */
+    protected function buildStorageDir(?string $path): string
+    {
+        if ($path) return $path;
+        $storagePrefix = $this->app['config']['kit.upload.storage_prefix'] ?? 'uploads';
+        return $storagePrefix . '/' . date('Ymd');
+    }
+
+    /**
+     * 生成文件名
+     * @param UploadedFile $file
+     * @param string|null $filename
+     * @return string|null
+     */
+    protected function buildFileName(\Illuminate\Http\UploadedFile $file, ?string $filename): ?string
+    {
+        if ($filename !== null) return $filename;
+        $naming = $this->app['config']['kit.upload.naming'] ?? 'random';
+        $ext = $file->getClientOriginalExtension();
+        if ($naming === 'md5') {
+            return md5_file($file->getRealPath() . time()) . '.' . $ext;
+        } elseif ($naming === 'sha1') {
+            return sha1_file($file->getRealPath() . time()) . '.' . $ext;
+        }
+        return null; // 让驱动自己用默认
+    }
+
+    /**
+     * 获取访问前缀
+     * @return string
+     */
+    protected function getAccessPrefix(): string
+    {
         $driverName = $this->currentDriver instanceof \Valencio\LaravelKit\Upload\Drivers\LocalUploader ? 'local' : null;
         $driversConfig = $this->app['config']['kit.upload.drivers'] ?? [];
-        $accessPrefix = $driversConfig[$driverName]['access_prefix'] ?? '/storage/uploads';
-
-        // 返回可访问路径（如 /storage/uploads/20251012/文件名）
-        return rtrim($accessPrefix, '/') . '/' . $dateDir . '/' . ($filename ?? basename($storedPath));
+        return $driversConfig[$driverName]['access_prefix'] ?? '/storage/uploads';
     }
 
     /**

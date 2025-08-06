@@ -18,4 +18,5 @@ return [
     'local_store_failed'    => '本地文件存储失败: :msg',
     'upload_failed'         => '文件上传失败: :msg',
     'validation_failed'     => '文件验证失败: :msg',
+    'invalid_file_type'     => '上传文件类型无效或未上传文件',
 ];
