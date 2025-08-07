@@ -80,4 +80,18 @@ trait Properties
      * @var array
      */
     protected array $searchEqualFields = [];
+
+    /**
+     * 关联模型
+     *
+     * @var array
+     */
+    protected array $with = [];
+
+    /**
+     * 列表字段 || 查询字段
+     *
+     * @var array
+     */
+    protected array $columns = [];
 }

@@ -25,7 +25,7 @@ trait Tools
     /**
      * @return void
      */
-    public function buildQuery (): void
+    protected function buildQuery (): void
     {
         $where = [];
         foreach ($this->requestParameters as $field => $value) {
@@ -75,6 +75,31 @@ trait Tools
 
 
     /**
+     * 设置字段
+     *
+     * @return void
+     */
+    protected function setColumns (): void
+    {
+        if (!empty($this->columns)){
+            $this->currentBuilder->select($this->columns);
+        }else{
+            $this->currentBuilder->select('*');
+        }
+    }
+
+    /**
+     * @return void
+     */
+    protected function setWith () : void
+    {
+        if (!empty($this->with)){
+            $this->currentBuilder->with($this->with);
+        }
+    }
+
+
+    /**
      * 处理数据
      *
      * Author        : Collin Ai
@@ -101,7 +126,7 @@ trait Tools
      * @param $row
      * @return void
      */
-    public function beforeUpdate ($row): void
+    protected function beforeUpdate ($row): void
     {
     }
 }

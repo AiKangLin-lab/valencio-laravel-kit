@@ -23,17 +23,17 @@ trait Core
 {
     use Tools;
 
-    /**
-     * 获取列表
-     *
-     * @return Collection
-     */
+
     public function getList ()
     {
         $this->currentBuilder = $this->model::query();
         $this->buildQuery();
 
         $this->setSort();
+
+        $this->setColumns();
+
+        $this->setWith();
 
         if (isset($this->requestParameters['page'])) {
             $list = $this->currentBuilder->paginate($this->requestParameters['limit'] ?? 10);
