@@ -66,7 +66,7 @@ trait Tools
         if (!empty($this->requestParameters['sort']) && is_string($this->requestParameters['sort'])) {
             $this->sortField = $this->requestParameters['sort'];
         }
-        if (!empty($params['order']) && in_array($params['order'], ['asc', 'desc'])) {
+        if (!empty($this->requestParameters['order']) && in_array($this->requestParameters['order'], ['asc', 'desc'])) {
             $this->sortOrder = $this->requestParameters['order'];
         }
 
@@ -98,6 +98,12 @@ trait Tools
         }
     }
 
+    /**
+     * @return void
+     */
+    protected function handleBuilder () : void
+    {
+    }
 
     /**
      * 处理数据

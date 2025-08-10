@@ -35,6 +35,8 @@ trait Core
 
         $this->setWith();
 
+        $this->handleBuilder();
+
         if (isset($this->requestParameters['page'])) {
             $list = $this->currentBuilder->paginate($this->requestParameters['limit'] ?? 10);
         } else {
@@ -79,5 +81,30 @@ trait Core
             $row->update($this->data);
         }
         return $row;
+    }
+
+
+    /**
+     * 删除
+     *
+     * @param int $id
+     * @return bool
+     */
+    public function destroy (int $id): bool
+    {
+      $row = $this->model::query()->findOrFail($id);
+      return $row->delete();
+    }
+
+
+    /**
+     * 批量删除
+     *
+     * @param array $ids
+     * @return int
+     */
+    public function batchDestroy (array $ids): int
+    {
+      return $this->model::destroy($ids);
     }
 }

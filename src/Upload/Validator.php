@@ -33,6 +33,7 @@ class Validator
      */
     public function execute(UploadedFile $file, array $rules): void
     {
+
         // 我们不重复造轮子，而是直接使用 Laravel 强大的内置 Validator
         $validator = LaravelValidator::make(
             ['upload_file' => $file],
