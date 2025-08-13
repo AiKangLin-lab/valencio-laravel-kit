@@ -31,7 +31,7 @@ class KitServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        // 合并上传模块配置
+        // 合并模块配置
         $this->mergeConfigFrom(__DIR__ . '/../../config/upload.php', 'kit.upload');
 
         // 注册 UploadManager 为单例，便于依赖注入和全局调用
