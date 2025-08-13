@@ -32,6 +32,24 @@ class Client
     use Tools;
 
     /**
+     * 获取调试信息
+     *
+     * @return array
+     */
+    public function __debugInfo(): array
+    {
+        // 获取所有属性
+        $properties = get_object_vars($this);
+
+        // 排除不需要显示的属性
+        unset($properties['pendingRequest']);
+        unset($properties['response']);
+        unset($properties['request']);
+
+        return $properties;
+    }
+
+    /**
      * 验证日志通道配置
      *
      * @return void
