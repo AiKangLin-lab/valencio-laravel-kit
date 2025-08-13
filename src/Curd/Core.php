@@ -13,15 +13,17 @@ declare (strict_types=1);
 
 namespace Valencio\LaravelKit\Curd;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 /**
  * CRUD操作核心特征
- * 
+ *
  * 提供完整的CRUD（创建、读取、更新、删除）操作功能
  * 包括列表查询、分页、创建、更新、删除等核心方法
- * 
+ *
  * @package Valencio\LaravelKit\Curd
  * @author ValencioKang <ailin1219@foxmail.com>
  * @since 2025-08-07
@@ -32,38 +34,44 @@ trait Core
 
     /**
      * 获取数据列表
-     * 
+     *
      * 支持分页查询和普通查询，自动应用搜索、排序、字段选择等条件
-     * 
-     * @return Collection|\Illuminate\Contracts\Pagination\LengthAwarePaginator 数据列表或分页结果
+     *
+     * @return Collection|LengthAwarePaginator 数据列表或分页结果
      */
-    public function getList()
+    public function getList(): Collection|LengthAwarePaginator
     {
         $this->currentBuilder = $this->model::query();
         $this->buildQuery();
 
         $this->setSort();
 
-        $this->setColumns();
-
         $this->setWith();
 
+
+        $isPaginated = isset($this->requestParameters['page']);
+
+        // 设置列
+        $this->setColumns($isPaginated ? $this->columns : $this->listColumns);
+
+        // 追加自定义构建逻辑
         $this->handleBuilder();
 
-        if (isset($this->requestParameters['page'])) {
-            $list = $this->currentBuilder->paginate($this->requestParameters['limit'] ?? 10);
-        } else {
-            $list = $this->currentBuilder->get();
+        // 返回数据
+        if ($isPaginated) {
+            $limit = $this->requestParameters['limit'] ?? 10;
+            return $this->currentBuilder->paginate($limit);
         }
 
-        return $list;
+
+        return $this->currentBuilder->get();
     }
 
     /**
      * 创建新记录
-     * 
+     *
      * 处理请求数据并创建新的模型实例
-     * 
+     *
      * @return Model 新创建的模型实例
      */
     public function store(): Model
@@ -76,12 +84,12 @@ trait Core
 
     /**
      * 更新指定记录
-     * 
+     *
      * 根据ID查找记录并更新其数据
-     * 
+     *
      * @param int $id 要更新的记录ID
      * @return Model 更新后的模型实例
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException 当记录不存在时抛出异常
+     * @throws ModelNotFoundException 当记录不存在时抛出异常
      */
     public function edit(int $id): Model
     {
@@ -95,6 +103,9 @@ trait Core
         $this->beforeUpdate($row);
 
         if ($this->data) {
+            if (!empty($this->allowUpdateFields)){
+                $this->data = array_intersect_key($this->data, array_flip($this->allowUpdateFields));
+            }
             $row->update($this->data);
         }
         return $row;
@@ -102,12 +113,12 @@ trait Core
 
     /**
      * 删除指定记录
-     * 
+     *
      * 根据ID查找并删除记录
-     * 
+     *
      * @param int $id 要删除的记录ID
      * @return bool 删除是否成功
-     * @throws \Illuminate\Database\Eloquent\ModelNotFoundException 当记录不存在时抛出异常
+     * @throws ModelNotFoundException 当记录不存在时抛出异常
      */
     public function destroy(int $id): bool
     {
@@ -117,9 +128,9 @@ trait Core
 
     /**
      * 批量删除记录
-     * 
+     *
      * 根据ID数组批量删除多条记录
-     * 
+     *
      * @param array<int> $ids 要删除的记录ID数组
      * @return int 实际删除的记录数量
      */
