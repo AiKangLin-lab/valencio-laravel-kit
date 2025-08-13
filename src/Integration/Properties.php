@@ -37,6 +37,14 @@ trait Properties
      */
     protected PendingRequest $pendingRequest;
 
+
+    /**
+     * 基础URL
+     *
+     * @var string
+     */
+    protected string $baseUrl = '';
+
     /**
      * HTTP响应实例
      *

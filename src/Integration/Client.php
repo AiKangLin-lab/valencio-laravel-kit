@@ -34,10 +34,10 @@ class Client
     /**
      * 验证日志通道配置
      *
-     * @throws IntegrationException 当日志通道配置无效时抛出异常
      * @return void
+     * @throws IntegrationException 当日志通道配置无效时抛出异常
      */
-    private function validateLogChannels(): void
+    private function validateLogChannels (): void
     {
         $availableChannels = array_keys(config('logging.channels', []));
 
@@ -60,17 +60,18 @@ class Client
      * @return void
      * @throws IntegrationException
      */
-    private function initialize(): void
+    private function initialize (): void
     {
         $this->validateLogChannels();
 
         $this->pendingRequest = Http::withRequestMiddleware(
-            function (RequestInterface $request) {
+            function(RequestInterface $request) {
                 $this->request = $request;
                 return $request;
             }
         )->connectTimeout($this->connectTimeout)
-         ->timeout($this->timeout);
+            ->baseUrl($this->baseUrl)
+            ->timeout($this->timeout);
     }
 
     /**
@@ -83,11 +84,11 @@ class Client
      * @return bool 请求是否成功
      * @throws IntegrationException 当请求配置错误时抛出异常
      */
-    public function send(
+    public function send (
         string $url,
-        array $options = [],
+        array  $options = [],
         string $method = 'POST',
-        bool $handleResponse = true
+        bool   $handleResponse = true
     ): bool {
         try {
             $this->initialize();
@@ -118,7 +119,7 @@ class Client
      * @return bool
      * @throws IntegrationException
      */
-    public function get(string $url, array $options = [], bool $handleResponse = true): bool
+    public function get (string $url, array $options = [], bool $handleResponse = true): bool
     {
         return $this->send($url, $options, 'GET', $handleResponse);
     }
@@ -132,7 +133,7 @@ class Client
      * @return bool
      * @throws IntegrationException
      */
-    public function post(string $url, array $options = [], bool $handleResponse = true): bool
+    public function post (string $url, array $options = [], bool $handleResponse = true): bool
     {
         return $this->send($url, $options, 'POST', $handleResponse);
     }
@@ -146,7 +147,7 @@ class Client
      * @return bool
      * @throws IntegrationException
      */
-    public function put(string $url, array $options = [], bool $handleResponse = true): bool
+    public function put (string $url, array $options = [], bool $handleResponse = true): bool
     {
         return $this->send($url, $options, 'PUT', $handleResponse);
     }
@@ -160,7 +161,7 @@ class Client
      * @return bool
      * @throws IntegrationException
      */
-    public function delete(string $url, array $options = [], bool $handleResponse = true): bool
+    public function delete (string $url, array $options = [], bool $handleResponse = true): bool
     {
         return $this->send($url, $options, 'DELETE', $handleResponse);
     }
