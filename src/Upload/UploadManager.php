@@ -13,6 +13,7 @@ declare (strict_types=1);
 
 namespace Valencio\LaravelKit\Upload;
 
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
 use Valencio\LaravelKit\Upload\Contracts\Uploader;
@@ -26,23 +27,23 @@ use Valencio\LaravelKit\Upload\Drivers\LocalUploader;
 class UploadManager
 {
     /**
-     * @var \Illuminate\Contracts\Foundation\Application
+     * @var Application
      */
-    protected $app;
+    protected Application $app;
     /**
      * @var array
      */
-    protected $drivers = [];
+    protected array $drivers = [];
     /**
      * @var Uploader|null
      */
-    protected $currentDriver;
+    protected ?Uploader $currentDriver;
 
     /**
      * 构造函数
-     * @param \Illuminate\Contracts\Foundation\Application $app
+     * @param Application $app
      */
-    public function __construct($app)
+    public function __construct(Application $app)
     {
         $this->app = $app;
     }

@@ -14,6 +14,7 @@ declare (strict_types=1);
 namespace Valencio\LaravelKit\Providers;
 
 use Illuminate\Support\ServiceProvider;
+use Valencio\LaravelKit\Export\ExportManager;
 use Valencio\LaravelKit\Upload\UploadManager;
 
 /**
@@ -29,7 +30,7 @@ class KitServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register()
+    public function register(): void
     {
         // 合并模块配置
         $this->mergeConfigFrom(__DIR__ . '/../../config/upload.php', 'kit.upload');
@@ -37,6 +38,11 @@ class KitServiceProvider extends ServiceProvider
         // 注册 UploadManager 为单例，便于依赖注入和全局调用
         $this->app->singleton(UploadManager::class, function($app) {
             return new UploadManager($app);
+        });
+
+        // 注册 ExportManager 为单例，便于依赖注入和全局调用
+        $this->app->singleton(ExportManager::class, function($app) {
+            return new ExportManager($app);
         });
     }
 
