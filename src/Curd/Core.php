@@ -59,9 +59,10 @@ trait Core
      * 创建查询构建器实例并应用搜索、排序、字段选择等条件
      * 返回当前查询构建器实例
      *
+     * @param bool $isSetColumns 是否设置列
      * @return Builder
      */
-    public function getCurrentBuilder (): Builder
+    public function getCurrentBuilder (bool $isSetColumns = true): Builder
     {
         $this->currentBuilder = $this->model::query();
         $this->buildQuery();
@@ -76,7 +77,9 @@ trait Core
         $this->isPaginated = isset($this->requestParameters['page']);
 
         // 设置列
-        $this->setColumns($this->isPaginated ? $this->columns : $this->listColumns);
+        if ($isSetColumns) {
+            $this->setColumns($this->isPaginated ? $this->columns : $this->listColumns);
+        }
 
         // 追加自定义构建逻辑
         $this->handleBuilder();
