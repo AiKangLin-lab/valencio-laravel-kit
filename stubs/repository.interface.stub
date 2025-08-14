@@ -1,0 +1,15 @@
+<?php
+
+namespace {{ namespace }};
+
+use {{ model }};
+use App\Services\Core\Contracts\BaseRepositoryInterface;
+
+/**
+ * {{ class }} Repository Interface
+ */
+interface {{ class }}RepositoryInterface extends BaseRepositoryInterface
+{
+    // Add specific methods here, e.g.:
+    // public function findBy{Field}(string $value): ?{{ model }};
+}
