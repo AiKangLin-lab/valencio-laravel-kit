@@ -14,6 +14,7 @@ declare (strict_types=1);
 namespace Valencio\LaravelKit\Curd;
 
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -39,7 +40,28 @@ trait Core
      *
      * @return Collection|LengthAwarePaginator 数据列表或分页结果
      */
-    public function getList(): Collection|LengthAwarePaginator
+    public function getList (): Collection|LengthAwarePaginator
+    {
+        $builder = $this->getCurrentBuilder();
+
+        // 返回数据
+        if ($this->isPaginated) {
+            $limit = $this->requestParameters[$this->pageSizeField] ?? 10;
+            return $this->currentBuilder->paginate($limit);
+        }
+
+
+        return $this->currentBuilder->get();
+    }
+
+    /**
+     * 获取当前查询构建器实例
+     * 创建查询构建器实例并应用搜索、排序、字段选择等条件
+     * 返回当前查询构建器实例
+     *
+     * @return Builder
+     */
+    public function getCurrentBuilder (): Builder
     {
         $this->currentBuilder = $this->model::query();
         $this->buildQuery();
@@ -48,23 +70,19 @@ trait Core
 
         $this->setWith();
 
+        // 追加自定义构建逻辑
+        $this->handleBuilder();
 
-        $isPaginated = isset($this->requestParameters['page']);
+        $this->isPaginated = isset($this->requestParameters['page']);
 
         // 设置列
-        $this->setColumns($isPaginated ? $this->columns : $this->listColumns);
+        $this->setColumns($this->isPaginated ? $this->columns : $this->listColumns);
 
         // 追加自定义构建逻辑
         $this->handleBuilder();
 
-        // 返回数据
-        if ($isPaginated) {
-            $limit = $this->requestParameters['limit'] ?? 10;
-            return $this->currentBuilder->paginate($limit);
-        }
+        return $this->currentBuilder;
 
-
-        return $this->currentBuilder->get();
     }
 
     /**
@@ -74,7 +92,7 @@ trait Core
      *
      * @return Model 新创建的模型实例
      */
-    public function store(): Model
+    public function store (): Model
     {
         $this->handleData();
         $this->beforeCreate();
@@ -91,7 +109,7 @@ trait Core
      * @return Model 更新后的模型实例
      * @throws ModelNotFoundException 当记录不存在时抛出异常
      */
-    public function edit(int $id): Model
+    public function edit (int $id): Model
     {
         $this->isUpdate = true;
         //  处理数据
@@ -103,7 +121,7 @@ trait Core
         $this->beforeUpdate($row);
 
         if ($this->data) {
-            if (!empty($this->allowUpdateFields)){
+            if (!empty($this->allowUpdateFields)) {
                 $this->data = array_intersect_key($this->data, array_flip($this->allowUpdateFields));
             }
             $row->update($this->data);
@@ -120,10 +138,10 @@ trait Core
      * @return bool 删除是否成功
      * @throws ModelNotFoundException 当记录不存在时抛出异常
      */
-    public function destroy(int $id): bool
+    public function destroy (int $id): bool
     {
-      $row = $this->model::query()->findOrFail($id);
-      return $row->delete();
+        $row = $this->model::query()->findOrFail($id);
+        return $row->delete();
     }
 
     /**
@@ -134,8 +152,8 @@ trait Core
      * @param array<int> $ids 要删除的记录ID数组
      * @return int 实际删除的记录数量
      */
-    public function batchDestroy(array $ids): int
+    public function batchDestroy (array $ids): int
     {
-      return $this->model::destroy($ids);
+        return $this->model::destroy($ids);
     }
 }

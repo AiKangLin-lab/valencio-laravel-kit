@@ -136,4 +136,18 @@ trait Properties
      * @var array<string>
      */
     protected array $allowUpdateFields = [];
+
+    /**
+     * 是否分页标识
+     *
+     * @var bool
+     */
+    protected bool $isPaginated = false;
+
+    /**
+     * 分页大小字段名称
+     *
+     * @var string
+     */
+    protected string $pageSizeField = 'limit';
 }
