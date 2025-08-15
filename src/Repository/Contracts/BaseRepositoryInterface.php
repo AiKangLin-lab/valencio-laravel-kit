@@ -81,6 +81,16 @@ interface BaseRepositoryInterface
      */
     public function update (int $id, array $data): bool;
 
+
+    /**
+     * Update a record by Model.
+     *
+     * @param Model $model
+     * @param array $data
+     * @return bool
+     */
+    public function updateModel (Model $model,array $data): bool;
+
     /**
      * Delete a record by Model.
      *

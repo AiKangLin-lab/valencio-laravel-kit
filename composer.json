@@ -23,7 +23,8 @@
   "extra": {
     "laravel": {
       "providers": [
-        "Valencio\\LaravelKit\\Providers\\KitServiceProvider"
+        "Valencio\\LaravelKit\\Providers\\KitServiceProvider",
+        "Valencio\\LaravelKit\\Providers\\RepositoryServiceProvider"
       ],
       "aliases": {
         "Kit": "Valencio\\LaravelKit\\Facades\\Kit"

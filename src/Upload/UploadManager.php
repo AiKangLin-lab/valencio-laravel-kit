@@ -37,13 +37,13 @@ class UploadManager
     /**
      * @var Uploader|null
      */
-    protected ?Uploader $currentDriver;
+    protected ?Uploader $currentDriver = null;
 
     /**
      * 构造函数
      * @param Application $app
      */
-    public function __construct(Application $app)
+    public function __construct (Application $app)
     {
         $this->app = $app;
     }
@@ -52,8 +52,9 @@ class UploadManager
      * 选择一个驱动并返回管理器实例，以支持链式调用。
      * @param string|null $name 驱动名称
      * @return $this
+     * @throws UploadException
      */
-    public function driver(?string $name = null): self
+    public function driver (?string $name = null): self
     {
         $driverName = $name ?: $this->getDefaultDriver();
         $this->currentDriver = $this->resolve($driverName);
@@ -66,7 +67,7 @@ class UploadManager
      * @return Uploader
      * @throws UploadException
      */
-    protected function resolve(string $name): Uploader
+    protected function resolve (string $name): Uploader
     {
         $config = $this->getConfig($name);
 
@@ -76,6 +77,7 @@ class UploadManager
 
         // 根据驱动名创建对应的驱动实例
         $methodName = 'create' . ucfirst($name) . 'Driver';
+
         if (method_exists($this, $methodName)) {
             return $this->$methodName($config);
         }
@@ -92,7 +94,7 @@ class UploadManager
      * @return string|false
      * @throws UploadException
      */
-    public function store(UploadedFile $file, ?string $path = null, string $ruleset = 'default', ?string $filename = null): string|false
+    public function store (UploadedFile $file, ?string $path = null, string $ruleset = 'default', ?string $filename = null): string|false
     {
         if (!$this->currentDriver) {
             $this->driver();
@@ -118,7 +120,7 @@ class UploadManager
      * @param string|null $path
      * @return string
      */
-    protected function buildStorageDir(?string $path): string
+    protected function buildStorageDir (?string $path): string
     {
         if ($path) return $path;
         $storagePrefix = $this->app['config']['kit.upload.storage_prefix'] ?? 'uploads';
@@ -131,7 +133,7 @@ class UploadManager
      * @param string|null $filename
      * @return string|null
      */
-    protected function buildFileName(\Illuminate\Http\UploadedFile $file, ?string $filename): ?string
+    protected function buildFileName (\Illuminate\Http\UploadedFile $file, ?string $filename): ?string
     {
         if ($filename !== null) return $filename;
         $naming = $this->app['config']['kit.upload.naming'] ?? 'random';
@@ -148,7 +150,7 @@ class UploadManager
      * 获取访问前缀
      * @return string
      */
-    protected function getAccessPrefix(): string
+    protected function getAccessPrefix (): string
     {
         $driverName = $this->currentDriver instanceof \Valencio\LaravelKit\Upload\Drivers\LocalUploader ? 'local' : null;
         $driversConfig = $this->app['config']['kit.upload.drivers'] ?? [];
@@ -160,7 +162,7 @@ class UploadManager
      * @param array $config
      * @return Uploader
      */
-    protected function createLocalDriver(array $config): Uploader
+    protected function createLocalDriver (array $config): Uploader
     {
         return new LocalUploader($config);
     }
@@ -172,7 +174,7 @@ class UploadManager
      * @return void
      * @throws UploadException
      */
-    protected function validate(UploadedFile $file, string $ruleset): void
+    protected function validate (UploadedFile $file, string $ruleset): void
     {
         $config = $this->app['config']['kit.upload.validation'];
 
@@ -191,7 +193,7 @@ class UploadManager
 
         // 实例化并执行验证
         try {
-            (new Validator())->execute($file, $rules);
+            new Validator()->execute($file, $rules);
         } catch (\Throwable $e) {
             throw new UploadException(
                 __('kit::upload.validation_failed', ['msg' => $e->getMessage()]),
@@ -205,7 +207,7 @@ class UploadManager
      * 获取默认驱动名称
      * @return string
      */
-    public function getDefaultDriver(): string
+    public function getDefaultDriver (): string
     {
         return $this->app['config']['kit.upload.default']->value;
     }
@@ -215,7 +217,7 @@ class UploadManager
      * @param string $name
      * @return array|null
      */
-    protected function getConfig(string $name): ?array
+    protected function getConfig (string $name): ?array
     {
         return Arr::get($this->app['config']['kit.upload.drivers'], $name);
     }

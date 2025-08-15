@@ -4,7 +4,7 @@ namespace {{ namespace }};
 
 use {{ model }};
 use {{ interface }};
-use App\Services\Core\Repository\BaseRepository;
+use Valencio\LaravelKit\Repository\BaseRepository;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -12,7 +12,7 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class {{ class }}Repository extends BaseRepository implements {{ class }}RepositoryInterface
 {
-    public function __construct({{ model }} $model)
+    public function __construct($model)
     {
         parent::__construct($model);
     }
@@ -23,13 +23,5 @@ class {{ class }}Repository extends BaseRepository implements {{ class }}Reposit
     protected function baseQuery(): Builder
     {
         return $this->model->query();
-    }
-
-  /**
-     * @return array
-     */
-    protected function defaultWith(): array
-    {
-        return []; // Define default relations here
     }
 }

@@ -85,6 +85,7 @@ class MakeRepositoryCommand extends GeneratorCommand
      */
     public function handle (): void
     {
+
         $name = Str::studly($this->argument('name'));
         $module = Str::studly($this->option('module'));
         //
@@ -93,6 +94,7 @@ class MakeRepositoryCommand extends GeneratorCommand
         $modulePath = app_path("Services/{$module}/{$name}");
         $this->files->ensureDirectoryExists("{$modulePath}/Contracts");
         $this->files->ensureDirectoryExists("{$modulePath}/Repository");
+
 
         // Generate Interface
         $this->createInterface($name, $module);

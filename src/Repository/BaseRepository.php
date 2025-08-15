@@ -109,6 +109,8 @@ abstract class BaseRepository
         return $this->query()->create($data);
     }
 
+
+
     /**
      * @param int $id
      * @param array $data
@@ -117,6 +119,16 @@ abstract class BaseRepository
     public function update (int $id, array $data): bool
     {
         $model = $this->findOrFail($id);
+        return $model->update($data);
+    }
+
+    /**
+     * @param Model $model
+     * @param array $data
+     * @return bool
+     */
+    public function updateModel (Model $model, array $data): bool
+    {
         return $model->update($data);
     }
 

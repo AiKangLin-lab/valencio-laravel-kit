@@ -3,7 +3,7 @@
 namespace {{ namespace }};
 
 use {{ model }};
-use App\Services\Core\Contracts\BaseRepositoryInterface;
+use Valencio\LaravelKit\Repository\Contracts\BaseRepositoryInterface;
 
 /**
  * {{ class }} Repository Interface
