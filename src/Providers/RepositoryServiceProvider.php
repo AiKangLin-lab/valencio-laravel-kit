@@ -27,7 +27,10 @@ class RepositoryServiceProvider extends ServiceProvider
     }
 
 
-    protected function registerRepositories ()
+    /**
+     * @return void
+     */
+    protected function registerRepositories (): void
     {
         $basePath = app_path('Services');
         if (!is_dir($basePath)) {
@@ -57,7 +60,10 @@ class RepositoryServiceProvider extends ServiceProvider
         }
     }
 
-    public function boot ()
+    /**
+     * @return void
+     */
+    public function boot (): void
     {
 
         if ($this->app->runningInConsole()) {
