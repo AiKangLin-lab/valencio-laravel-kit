@@ -13,8 +13,11 @@ declare (strict_types=1);
 
 namespace Valencio\LaravelKit\Providers;
 
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\ServiceProvider;
+use Valencio\LaravelKit\Commands\MakeRepositoryCacheCommand;
 use Valencio\LaravelKit\Commands\MakeRepositoryCommand;
+use Valencio\LaravelKit\Repository\Utils\RepositoryScanner;
 
 class RepositoryServiceProvider extends ServiceProvider
 {
@@ -28,35 +31,38 @@ class RepositoryServiceProvider extends ServiceProvider
 
 
     /**
+     * 注册 Repository 接口与实现类绑定
+     *
      * @return void
      */
-    protected function registerRepositories (): void
+    protected function registerRepositories(): void
     {
-        $basePath = app_path('Services');
+        $basePath = app_path('Services/Apps');
         if (!is_dir($basePath)) {
             return;
         }
 
+        $bindings = [];
 
-        $modules = ['Apps'];
+        if ($this->app->environment('production')) {
+            // 生产环境优先加载静态缓存文件（部署时由 php artisan repository:cache 生成）
+            $cacheFile = base_path('bootstrap/cache/repository_bindings.php');
 
-        foreach ($modules as $module) {
-            $modulePath = $basePath . '/' . $module;
-            if (!is_dir($modulePath)) {
-                continue;
+            if (file_exists($cacheFile)) {
+                $bindings = require $cacheFile;
+            } else {
+                // 没有静态文件则退回到 Cache::remember
+                $cacheKey = 'repository_bindings';
+                $bindings = Cache::remember($cacheKey, now()->addHours(24), fn() => RepositoryScanner::scan($basePath));
             }
+        } else {
+            // 开发环境：实时扫描，避免阻塞开发体验
+            $bindings = RepositoryScanner::scan($basePath);
+        }
 
-            $entities = array_diff(scandir($modulePath), ['.', '..']);
-
-
-            foreach ($entities as $entity) {
-                $interface = "App\\Services\\{$module}\\{$entity}\\Contracts\\{$entity}RepositoryInterface";
-                $repository = "App\\Services\\{$module}\\{$entity}\\Repository\\{$entity}Repository";
-
-                if (interface_exists($interface) && class_exists($repository)) {
-                    $this->app->singleton($interface, $repository);
-                }
-            }
+        // 统一绑定到容器
+        foreach ($bindings as $interface => $repository) {
+            $this->app->singleton($interface, $repository);
         }
     }
 
@@ -69,6 +75,7 @@ class RepositoryServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 MakeRepositoryCommand::class,
+                MakeRepositoryCacheCommand::class
             ]);
 
             // 发布 Stub 文件
