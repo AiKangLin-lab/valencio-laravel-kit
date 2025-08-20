@@ -58,46 +58,51 @@ abstract class BaseRepository
 
     /**
      * @param int $id
+     * @param array $columns
      * @return Model|null
      */
-    public function find (int $id): ?Model
+    public function find (int $id, array $columns = ['*']): ?Model
     {
-        return $this->query()->find($id);
+        return $this->query()->select($columns)->find($id);
     }
 
     /**
      * @param int $id
+     * @param array $columns
      * @return Model
      */
-    public function findOrFail (int $id): Model
+    public function findOrFail (int $id, array $columns = ['*']): Model
     {
-        return $this->query()->findOrFail($id);
+        return $this->query()->select($columns)->findOrFail($id);
     }
 
     /**
      * @param array $criteria
+     * @param array $columns
      * @return Model|null
      */
-    public function first (array $criteria): ?Model
+    public function first (array $criteria, array $columns = ['*']): ?Model
     {
         $query = $this->query();
         foreach ($criteria as $field => $value) {
             $query->where($field, $value);
         }
-        return $query->first();
+        return $query->select($columns)->first();
     }
 
     /**
      * @param array $criteria
+     * @param array $columns
      * @return Model
      */
-    public function firstOrFail (array $criteria): Model
+    public function firstOrFail (array $criteria, array $columns = ['*']): Model
     {
         $query = $this->query();
         foreach ($criteria as $field => $value) {
             $query->where($field, $value);
         }
-        return $query->firstOrFail();
+
+        return $query->select($columns)->firstOrFail();
     }
 
     /**
@@ -108,7 +113,6 @@ abstract class BaseRepository
     {
         return $this->query()->create($data);
     }
-
 
 
     /**
