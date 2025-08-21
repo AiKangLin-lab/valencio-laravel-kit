@@ -114,6 +114,14 @@ abstract class BaseRepository
         return $this->query()->create($data);
     }
 
+    /**
+     * @param array $values
+     * @return bool
+     */
+    public function insert (array $values): bool
+    {
+        return $this->query()->insert($values);
+    }
 
     /**
      * @param int $id

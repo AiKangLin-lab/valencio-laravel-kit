@@ -72,6 +72,13 @@ interface BaseRepositoryInterface
      */
     public function create (array $data): Model;
 
+
+    /**
+     * @param array $values
+     * @return bool
+     */
+    public function insert (array $values): bool;
+
     /**
      * Update a record by ID.
      *
@@ -89,7 +96,7 @@ interface BaseRepositoryInterface
      * @param array $data
      * @return bool
      */
-    public function updateModel (Model $model,array $data): bool;
+    public function updateModel (Model $model, array $data): bool;
 
     /**
      * Delete a record by Model.
