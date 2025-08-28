@@ -82,7 +82,9 @@ trait Tools
             $this->sortOrder = $this->requestParameters['order'];
         }
 
-        $this->currentBuilder->orderBy($this->sortField, $this->sortOrder);
+        if ($this->isOpenDefaultSort) {
+            $this->currentBuilder->orderBy($this->sortField, $this->sortOrder);
+        }
     }
 
     /**

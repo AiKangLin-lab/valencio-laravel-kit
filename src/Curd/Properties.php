@@ -55,6 +55,15 @@ trait Properties
      */
     protected string $sortOrder = 'desc';
 
+
+    /**
+     * 是否开启默认排序标识
+     *
+     * @var bool
+     */
+    protected bool $isOpenDefaultSort = true;
+
+
     /**
      * 系统自定义排序字段配置
      *
