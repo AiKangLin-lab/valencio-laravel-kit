@@ -80,10 +80,6 @@ trait Core
         if ($isSetColumns) {
             $this->setColumns($this->isPaginated ? $this->columns : $this->listColumns);
         }
-
-        // 追加自定义构建逻辑
-        $this->handleBuilder();
-
         return $this->currentBuilder;
 
     }
