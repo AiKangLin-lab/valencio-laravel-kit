@@ -18,7 +18,8 @@
     "php": "^8.4",
     "laravel/framework": "^12.0",
     "laravel/tinker": "^2.10.1",
-    "ext-xlswriter": "*"
+    "ext-xlswriter": "*",
+    "alibabacloud/oss-v2": "^0.3.1"
   },
   "extra": {
     "laravel": {

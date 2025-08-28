@@ -13,6 +13,8 @@ declare (strict_types=1);
 
 namespace Valencio\LaravelKit\Upload;
 
+use Illuminate\Support\Str;
+use Valencio\LaravelKit\Upload\Drivers\AliYunDriver;
 use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Arr;
@@ -40,6 +42,11 @@ class UploadManager
     protected ?Uploader $currentDriver = null;
 
     /**
+     * @var string
+     */
+    protected string $currentDriverName;
+
+    /**
      * 构造函数
      * @param Application $app
      */
@@ -57,6 +64,7 @@ class UploadManager
     public function driver (?string $name = null): self
     {
         $driverName = $name ?: $this->getDefaultDriver();
+        $this->currentDriverName = $driverName;
         $this->currentDriver = $this->resolve($driverName);
         return $this;
     }
@@ -82,6 +90,7 @@ class UploadManager
             return $this->$methodName($config);
         }
 
+
         throw new UploadException(__('kit::upload.driver_not_supported', ['driver' => $name]));
     }
 
@@ -104,14 +113,17 @@ class UploadManager
         $dir = $this->buildStorageDir($path);
         $finalFileName = $this->buildFileName($file, $filename);
 
+
         $storedPath = $this->currentDriver->store($file, $dir, $finalFileName);
         if ($storedPath === false) {
             throw new UploadException(__('kit::upload.upload_failed', ['msg' => 'store 返回 false']));
         }
 
         $accessPrefix = $this->getAccessPrefix();
+
         $dateDir = basename($dir); // 目录名为日期
         $finalName = $finalFileName ?? basename($storedPath);
+
         return rtrim($accessPrefix, '/') . '/' . $dateDir . '/' . $finalName;
     }
 
@@ -123,7 +135,7 @@ class UploadManager
     protected function buildStorageDir (?string $path): string
     {
         if ($path) return $path;
-        $storagePrefix = $this->app['config']['kit.upload.storage_prefix'] ?? 'uploads';
+        $storagePrefix = $this->app['config']['kit.upload.storage_prefix'] ?? '/uploads';
         return $storagePrefix . '/' . date('Ymd');
     }
 
@@ -133,17 +145,48 @@ class UploadManager
      * @param string|null $filename
      * @return string|null
      */
-    protected function buildFileName (\Illuminate\Http\UploadedFile $file, ?string $filename): ?string
+    protected function buildFileName (UploadedFile $file, ?string $filename): ?string
     {
-        if ($filename !== null) return $filename;
+        if ($filename !== null) {
+            return $filename;
+        }
+
         $naming = $this->app['config']['kit.upload.naming'] ?? 'random';
         $ext = $file->getClientOriginalExtension();
-        if ($naming === 'md5') {
-            return md5_file($file->getRealPath() . time()) . '.' . $ext;
-        } elseif ($naming === 'sha1') {
-            return sha1_file($file->getRealPath() . time()) . '.' . $ext;
+
+        switch ($naming) {
+            case 'md5':
+                return md5(file_get_contents($file->getRealPath()) . time()) . '.' . $ext;
+
+            case 'sha1':
+                return sha1(file_get_contents($file->getRealPath()) . time()) . '.' . $ext;
+
+            case 'uuid':
+                return Str::uuid()->toString() . '.' . $ext;
+
+            case 'original':
+                $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
+                return $name . '_' . time() . '.' . $ext;
+
+            case 'timestamp':
+                return time() . '.' . $ext;
+
+            case 'datetime':
+                return date('Ymd_His_u') . '.' . $ext;
+
+            case 'hash_content':
+                return sha1(file_get_contents($file->getRealPath())) . '.' . $ext;
+
+            case 'uniqid':
+                return uniqid('', true) . '.' . $ext;
+
+            case 'random':
+                return Str::random(40) . '.' . $ext;
+
+            default:
+                // 交由驱动器自动处理
+                return null;
         }
-        return null; // 让驱动自己用默认
     }
 
     /**
@@ -152,9 +195,8 @@ class UploadManager
      */
     protected function getAccessPrefix (): string
     {
-        $driverName = $this->currentDriver instanceof \Valencio\LaravelKit\Upload\Drivers\LocalUploader ? 'local' : null;
         $driversConfig = $this->app['config']['kit.upload.drivers'] ?? [];
-        return $driversConfig[$driverName]['access_prefix'] ?? '/storage/uploads';
+        return $driversConfig[$this->currentDriverName]['access_prefix'] ?? '/uploads';
     }
 
     /**
@@ -168,13 +210,25 @@ class UploadManager
     }
 
     /**
+     * 创建阿里云驱动实例
+     * @param array $config
+     * @return AliYunDriver
+     */
+    public function createAliyunDriver (
+        array $config): AliYunDriver
+    {
+        return new AliYunDriver($config);
+    }
+
+    /**
      * 执行上传文件的验证
      * @param UploadedFile $file
      * @param string $ruleset
      * @return void
      * @throws UploadException
      */
-    protected function validate (UploadedFile $file, string $ruleset): void
+    protected function validate (
+        UploadedFile $file, string $ruleset): void
     {
         $config = $this->app['config']['kit.upload.validation'];
 
@@ -217,7 +271,8 @@ class UploadManager
      * @param string $name
      * @return array|null
      */
-    protected function getConfig (string $name): ?array
+    protected function getConfig (
+        string $name): ?array
     {
         return Arr::get($this->app['config']['kit.upload.drivers'], $name);
     }
