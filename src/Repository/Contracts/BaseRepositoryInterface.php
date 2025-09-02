@@ -107,6 +107,14 @@ interface BaseRepositoryInterface
     public function delete (Model $model): bool;
 
     /**
+     * Delete a record by Where.
+     *
+     * @param array $where
+     * @return mixed
+     */
+    public function deleteByWhere (array $where) : mixed;
+
+    /**
      * Destroy the models for the given IDs.
      *
      * @param int|array $ids

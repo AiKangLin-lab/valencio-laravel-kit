@@ -154,6 +154,15 @@ abstract class BaseRepository
     }
 
     /**
+     * @param array $where
+     * @return mixed
+     */
+    public function deleteByWhere (array $where): mixed
+    {
+        return $this->query()->where($where)->delete();
+    }
+
+    /**
      * @param int|array $ids
      * @return int
      */
