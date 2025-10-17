@@ -67,6 +67,11 @@ trait Core
         $this->currentBuilder = $this->model::query();
         $this->buildQuery();
 
+        // 设置列
+        if ($isSetColumns) {
+            $this->setColumns($this->isPaginated ? $this->columns : $this->listColumns);
+        }
+
         $this->setSort();
 
         $this->setWith();
@@ -75,11 +80,7 @@ trait Core
         $this->handleBuilder();
 
         $this->isPaginated = isset($this->requestParameters['page']);
-
-        // 设置列
-        if ($isSetColumns) {
-            $this->setColumns($this->isPaginated ? $this->columns : $this->listColumns);
-        }
+        
         return $this->currentBuilder;
 
     }
