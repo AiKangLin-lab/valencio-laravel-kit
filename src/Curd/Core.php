@@ -80,7 +80,7 @@ trait Core
         $this->handleBuilder();
 
         $this->isPaginated = isset($this->requestParameters['page']);
-        
+
         return $this->currentBuilder;
 
     }
@@ -141,6 +141,7 @@ trait Core
     public function destroy (int $id): bool
     {
         $row = $this->model::query()->findOrFail($id);
+        $this->beforeDestroy($row);
         return $row->delete();
     }
 

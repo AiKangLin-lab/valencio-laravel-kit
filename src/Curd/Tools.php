@@ -14,6 +14,7 @@ declare (strict_types=1);
 namespace Valencio\LaravelKit\Curd;
 
 use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * CRUD操作工具特征
@@ -163,10 +164,24 @@ trait Tools
      * 在更新记录之前执行的自定义逻辑
      * 子类可以重写此方法来实现更新前的数据处理、验证等
      *
-     * @param Model $row 要更新的模型实例
+     * @param object $row 要更新的模型实例
      * @return void
      */
-    protected function beforeUpdate ($row): void
+    protected function beforeUpdate (object $row): void
     {
+    }
+
+    /**
+     * 删除记录前的处理
+     *
+     * 在删除记录之前执行的自定义逻辑
+     * 子类可以重写此方法来实现删除前的数据处理、验证等
+     *
+     * @param Model $row 要删除的模型实例
+     * @return void
+     */
+    protected function beforeDestroy (Model $row): void
+    {
+
     }
 }
