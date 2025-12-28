@@ -15,6 +15,7 @@ namespace Valencio\LaravelKit\Curd;
 
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Http\Request;
 
 /**
  * CRUD操作属性特征
@@ -128,14 +129,13 @@ trait Properties
      */
     protected array $listColumns = [];
 
+
     /**
-     * 请求参数数组
+     * 请求对象
      *
-     * 存储来自HTTP请求的所有参数
-     *
-     * @var array<string, mixed>
+     * @var Request
      */
-    protected array $requestParameters = [];
+    protected Request $request;
 
     /**
      * 可更新的字段列表

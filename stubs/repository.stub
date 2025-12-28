@@ -1,4 +1,5 @@
 <?php
+declare (strict_types=1);
 
 namespace {{ namespace }};
 
@@ -22,6 +23,6 @@ class {{ class }}Repository extends BaseRepository implements {{ class }}Reposit
      */
     protected function baseQuery(): Builder
     {
-        return $this->model->query();
+        return $this->model::query();
     }
 }

@@ -14,6 +14,7 @@ declare (strict_types=1);
 namespace Valencio\LaravelKit\Repository;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 
 abstract class BaseRepository
@@ -39,22 +40,6 @@ abstract class BaseRepository
      */
     abstract protected function baseQuery (): Builder;
 
-    /**
-     * Get a query builder with cross-cutting concerns applied.
-     *
-     * @return Builder
-     */
-    public function query (): Builder
-    {
-        $query = $this->baseQuery();
-
-        $defaultWith = method_exists($this, 'defaultWith') ? $this->defaultWith() : [];
-        if (!empty($defaultWith)) {
-            $query->with($defaultWith);
-        }
-        return $query;
-    }
-
 
     /**
      * @param int $id
@@ -63,7 +48,7 @@ abstract class BaseRepository
      */
     public function find (int $id, array $columns = ['*']): ?Model
     {
-        return $this->query()->select($columns)->find($id);
+        return $this->baseQuery()->select($columns)->find($id);
     }
 
     /**
@@ -73,7 +58,7 @@ abstract class BaseRepository
      */
     public function findOrFail (int $id, array $columns = ['*']): Model
     {
-        return $this->query()->select($columns)->findOrFail($id);
+        return $this->baseQuery()->select($columns)->findOrFail($id);
     }
 
     /**
@@ -83,7 +68,7 @@ abstract class BaseRepository
      */
     public function first (array $criteria, array $columns = ['*']): ?Model
     {
-        $query = $this->query();
+        $query = $this->baseQuery();
         foreach ($criteria as $field => $value) {
             $query->where($field, $value);
         }
@@ -97,10 +82,8 @@ abstract class BaseRepository
      */
     public function firstOrFail (array $criteria, array $columns = ['*']): Model
     {
-        $query = $this->query();
-        foreach ($criteria as $field => $value) {
-            $query->where($field, $value);
-        }
+        $query = $this->baseQuery();
+        $query->where($criteria);
 
         return $query->select($columns)->firstOrFail();
     }
@@ -111,7 +94,7 @@ abstract class BaseRepository
      */
     public function create (array $data): Model
     {
-        return $this->query()->create($data);
+        return $this->baseQuery()->create($data);
     }
 
     /**
@@ -120,7 +103,7 @@ abstract class BaseRepository
      */
     public function insert (array $values): bool
     {
-        return $this->query()->insert($values);
+        return $this->baseQuery()->insert($values);
     }
 
     /**
@@ -159,7 +142,7 @@ abstract class BaseRepository
      */
     public function deleteByWhere (array $where): mixed
     {
-        return $this->query()->where($where)->delete();
+        return $this->baseQuery()->where($where)->delete();
     }
 
     /**
@@ -169,5 +152,15 @@ abstract class BaseRepository
     public function destroy (int|array $ids): int
     {
         return $this->model::destroy($ids);
+    }
+
+    /**
+     * @param array $columns
+     * @param array $query
+     * @return Collection
+     */
+    public function getAll (array $columns = ['*'], array $query = []): Collection
+    {
+        return $this->baseQuery()->where($query)->select($columns)->get();
     }
 }

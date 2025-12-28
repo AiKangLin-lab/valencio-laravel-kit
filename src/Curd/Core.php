@@ -13,6 +13,8 @@ declare (strict_types=1);
 
 namespace Valencio\LaravelKit\Curd;
 
+use Closure;
+use Illuminate\Contracts\Database\Query\Expression;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -46,7 +48,7 @@ trait Core
 
         // 返回数据
         if ($this->isPaginated) {
-            $limit = $this->requestParameters[$this->pageSizeField] ?? 10;
+            $limit = $this->request->input($this->pageSizeField, 10);
             return $this->currentBuilder->paginate($limit);
         }
 
@@ -79,7 +81,7 @@ trait Core
         // 追加自定义构建逻辑
         $this->handleBuilder();
 
-        $this->isPaginated = isset($this->requestParameters['page']);
+        $this->isPaginated = $this->request->has('page');
 
         return $this->currentBuilder;
 
@@ -94,8 +96,10 @@ trait Core
      */
     public function store (): Model
     {
+
         $this->handleData();
         $this->beforeCreate();
+
 
         return $this->model::query()->create($this->data);
     }
@@ -115,6 +119,7 @@ trait Core
         //  处理数据
         $this->handleData();
 
+
         $row = $this->model::query()->findOrFail($id);
 
         //  修改前置
@@ -127,6 +132,17 @@ trait Core
             $row->update($this->data);
         }
         return $row;
+    }
+
+
+    /**
+     * @param (Closure(static): mixed)|string|array|Expression $column
+     * @param array $data
+     * @return void
+     */
+    public function quickEdit ($column, array $data): void
+    {
+        $this->model::query()->where($column)->update($data);
     }
 
     /**
@@ -155,6 +171,10 @@ trait Core
      */
     public function batchDestroy (array $ids): int
     {
-        return $this->model::destroy($ids);
+        if (count($ids) > 0) {
+            return $this->model::destroy($ids);
+        }
+
+        return 0;
     }
 }

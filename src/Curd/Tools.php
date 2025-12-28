@@ -39,7 +39,7 @@ trait Tools
     protected function buildQuery (): void
     {
         $where = [];
-        foreach ($this->requestParameters as $field => $value) {
+        foreach ($this->request->input() as $field => $value) {
             if (!empty($value)) {
                 if (in_array($field, $this->searchLikeFields)) {
                     $where[] = [$field, 'like', "%{$value}%"];
@@ -76,11 +76,14 @@ trait Tools
             }
         }
 
-        if (!empty($this->requestParameters['sort']) && is_string($this->requestParameters['sort'])) {
-            $this->sortField = $this->requestParameters['sort'];
+        $sortField = $this->request->string('sort');
+        $sortOrder = $this->request->string('order');
+
+        if ($sortField->isNotEmpty()) {
+            $this->sortField = $sortField->toString();
         }
-        if (!empty($this->requestParameters['order']) && in_array($this->requestParameters['order'], ['asc', 'desc'])) {
-            $this->sortOrder = $this->requestParameters['order'];
+        if ($sortOrder->isNotEmpty() && in_array($sortOrder, ['asc', 'desc'])) {
+            $this->sortOrder = $sortOrder->toString();
         }
 
         if ($this->isOpenDefaultSort) {
@@ -143,7 +146,7 @@ trait Tools
      */
     protected function handleData (): void
     {
-        $this->data = $this->requestParameters;
+        $this->data = $this->request->input();
     }
 
     /**

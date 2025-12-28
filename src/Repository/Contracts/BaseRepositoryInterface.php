@@ -14,6 +14,7 @@ declare (strict_types=1);
 namespace Valencio\LaravelKit\Repository\Contracts;
 
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -22,13 +23,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
  */
 interface BaseRepositoryInterface
 {
-    /**
-     * Get a query builder instance with cross-cutting concerns applied.
-     *
-     * @return Builder
-     */
-    public function query (): Builder;
-
     /**
      * Find a record by ID.
      *
@@ -112,7 +106,7 @@ interface BaseRepositoryInterface
      * @param array $where
      * @return mixed
      */
-    public function deleteByWhere (array $where) : mixed;
+    public function deleteByWhere (array $where): mixed;
 
     /**
      * Destroy the models for the given IDs.
@@ -121,4 +115,11 @@ interface BaseRepositoryInterface
      * @return int
      */
     public function destroy (int|array $ids): int;
+
+    /**
+     * @param array $columns
+     * @param array $query
+     * @return Collection
+     */
+    public function getAll (array $columns = ['*'], array $query = []): Collection;
 }
