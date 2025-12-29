@@ -26,7 +26,6 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function register (): void
     {
-        $this->registerRepositories();
     }
 
 
@@ -35,7 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerRepositories(): void
+    protected function registerRepositories (): void
     {
         $basePath = app_path('Services/Apps');
         if (!is_dir($basePath)) {
@@ -51,9 +50,7 @@ class RepositoryServiceProvider extends ServiceProvider
             if (file_exists($cacheFile)) {
                 $bindings = require $cacheFile;
             } else {
-                // 没有静态文件则退回到 Cache::remember
-                $cacheKey = 'repository_bindings';
-                $bindings = Cache::remember($cacheKey, now()->addHours(24), fn() => RepositoryScanner::scan($basePath));
+                $bindings = RepositoryScanner::scan($basePath);
             }
         } else {
             // 开发环境：实时扫描，避免阻塞开发体验
@@ -71,6 +68,9 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function boot (): void
     {
+        $this->app->booted(function() {
+            $this->registerRepositories();
+        });
 
         if ($this->app->runningInConsole()) {
             $this->commands([
