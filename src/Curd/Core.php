@@ -113,7 +113,7 @@ trait Core
      * @return Model 更新后的模型实例
      * @throws ModelNotFoundException 当记录不存在时抛出异常
      */
-    public function edit (int $id): Model
+    public function edit (int $id, array $updateData = []): Model
     {
         $this->isUpdate = true;
         //  处理数据
@@ -125,12 +125,17 @@ trait Core
         //  修改前置
         $this->beforeUpdate($row);
 
-        if ($this->data) {
-            if (!empty($this->allowUpdateFields)) {
-                $this->data = array_intersect_key($this->data, array_flip($this->allowUpdateFields));
+        if (empty($updateData)) {
+            if ($this->data) {
+                if (!empty($this->allowUpdateFields)) {
+                    $this->data = array_intersect_key($this->data, array_flip($this->allowUpdateFields));
+                }
+                $row->update($this->data);
             }
-            $row->update($this->data);
+        } else {
+            $row->update($updateData);
         }
+
         return $row;
     }
 
