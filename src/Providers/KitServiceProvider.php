@@ -15,6 +15,8 @@ namespace Valencio\LaravelKit\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Valencio\LaravelKit\Export\ExportManager;
+use Valencio\LaravelKit\File\Adapters\PublicDiskAdapter;
+use Valencio\LaravelKit\File\Adapters\StorageAdapterRegistry;
 use Valencio\LaravelKit\Upload\UploadManager;
 
 /**
@@ -33,7 +35,7 @@ class KitServiceProvider extends ServiceProvider
     public function register(): void
     {
         // 合并模块配置
-        $this->mergeConfigFrom(__DIR__ . '/../../config/upload.php', 'kit.upload');
+        $this->mergeConfigFrom(__DIR__ . '/../../config/kit-file.php', 'kit.file');
 
         // 注册 UploadManager 为单例，便于依赖注入和全局调用
         $this->app->singleton(UploadManager::class, function($app) {
@@ -43,6 +45,17 @@ class KitServiceProvider extends ServiceProvider
         // 注册 ExportManager 为单例，便于依赖注入和全局调用
         $this->app->singleton(ExportManager::class, function($app) {
             return new ExportManager($app);
+        });
+
+
+        // 注册 registry，并注入所有适配器
+        $this->app->singleton(StorageAdapterRegistry::class, function ($app) {
+            return new StorageAdapterRegistry([
+                $app->make(PublicDiskAdapter::class),
+                // 以后加：
+                // $app->make(OssDiskAdapter::class),
+                // $app->make(CosDiskAdapter::class),
+            ]);
         });
     }
 
@@ -60,8 +73,8 @@ class KitServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             // 按模块分别发布配置文件，用户可按需选择
             $this->publishes([
-                __DIR__.'/../../config/upload.php' => config_path('kit/upload.php'),
-            ], 'kit-upload-config');
+                __DIR__.'/../../config/kit-file.php' => config_path('kit/file.php'),
+            ], 'kit-file-config');
 
             // 后续新增模块时，只需添加对应的 publishes 行
             // 例如：

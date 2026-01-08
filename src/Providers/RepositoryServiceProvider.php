@@ -81,7 +81,7 @@ class RepositoryServiceProvider extends ServiceProvider
             // 发布 Stub 文件
             $this->publishes([
                 __DIR__ . '/../../stubs' => base_path('stubs'),
-            ], 'kie-repository-stubs');
+            ], 'kit-repository-stubs');
         }
     }
 }
