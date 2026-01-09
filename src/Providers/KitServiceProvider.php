@@ -15,9 +15,9 @@ namespace Valencio\LaravelKit\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Valencio\LaravelKit\Export\ExportManager;
+use Valencio\LaravelKit\File\Adapters\COSDiskAdapter;
 use Valencio\LaravelKit\File\Adapters\PublicDiskAdapter;
 use Valencio\LaravelKit\File\Adapters\StorageAdapterRegistry;
-use Valencio\LaravelKit\Upload\UploadManager;
 
 /**
  * Laravel Kit 包服务提供者
@@ -37,24 +37,17 @@ class KitServiceProvider extends ServiceProvider
         // 合并模块配置
         $this->mergeConfigFrom(__DIR__ . '/../../config/kit-file.php', 'kit.file');
 
-        // 注册 UploadManager 为单例，便于依赖注入和全局调用
-        $this->app->singleton(UploadManager::class, function($app) {
-            return new UploadManager($app);
-        });
 
         // 注册 ExportManager 为单例，便于依赖注入和全局调用
         $this->app->singleton(ExportManager::class, function($app) {
             return new ExportManager($app);
         });
 
-
         // 注册 registry，并注入所有适配器
         $this->app->singleton(StorageAdapterRegistry::class, function ($app) {
             return new StorageAdapterRegistry([
                 $app->make(PublicDiskAdapter::class),
-                // 以后加：
-                // $app->make(OssDiskAdapter::class),
-                // $app->make(CosDiskAdapter::class),
+                $app->make(COSDiskAdapter::class),
             ]);
         });
     }

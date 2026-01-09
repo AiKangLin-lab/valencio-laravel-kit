@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | Author:    ValencioKang <ailin1219@foxmail.com>
 // +----------------------------------------------------------------------
-// | FileName:  PublicDiskAdapter.php
+// | FileName:  COSDiskAdapter.php
 // +----------------------------------------------------------------------
 // | Year:      2026/1/9/一月
 // +----------------------------------------------------------------------
@@ -13,22 +13,13 @@ declare (strict_types=1);
 
 namespace Valencio\LaravelKit\File\Adapters;
 
-use Illuminate\Contracts\Filesystem\Filesystem;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use Valencio\LaravelKit\File\FilePathResult;
 
-/**
- * 获取存储的磁盘名称。
- *
- * 该方法用于返回当前适配器关联的磁盘名称，通常用于标识或配置中指定特定的存储位置。
- *
- * @return string 返回表示磁盘名称的字符串。
- */
-class PublicDiskAdapter implements StorageAdapterInterface
+class COSDiskAdapter implements StorageAdapterInterface
 {
-
     /**
      * 获取存储的磁盘名称
      *
@@ -36,7 +27,7 @@ class PublicDiskAdapter implements StorageAdapterInterface
      */
     public function disk (): string
     {
-        return 'public';
+        return 'cos';
     }
 
     /**

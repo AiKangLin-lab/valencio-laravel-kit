@@ -45,31 +45,26 @@ readonly class FileUploadService
      * 存储上传的文件到指定磁盘
      *
      * @param UploadedFile $file 要存储的上传文件对象
-     * @param string $prefix 存储路径前缀，默认为'uploads'
-     * @param string $namingStrategy 文件命名策略，默认为'sha256'
-     * @param string $disk 存储磁盘名称，默认为'public'
      * @return FileUploadResult 文件上传结果对象
      * @throws RandomException
      */
     public function store (
-        UploadedFile $file,
-        string       $prefix = 'uploads',
-        string       $namingStrategy = 'sha256',
-        string       $disk = 'public'
+        UploadedFile   $file,
+        ?UploadOptions $options = null
     ): FileUploadResult {
+        $options = ($options ?? new UploadOptions())->resolve();
 
-        print_r(config('kit.file'));
-        exit;
         // 生成文件存储路径
         $pathResult = $this->pathGenerator->generate(
             file: $file,
-            prefix: $prefix,
-            dateFormat: 'Ymd',
-            namingStrategy: $namingStrategy
+            appName: $options->appName,
+            prefix: $options->prefix,
+            dateFormat: $options->dateFormat,
+            namingStrategy: $options->namingStrategy
         );
 
         // 获取指定磁盘的适配器
-        $adapter = $this->adapterRegistry->get($disk);
+        $adapter = $this->adapterRegistry->get($options->disk);
 
         try {
             $key = $adapter->putFileAs($file, $pathResult);
@@ -78,9 +73,9 @@ readonly class FileUploadService
         }
 
         return new FileUploadResult(
-            disk: $disk,
+            disk: $options->disk,
             path: $key,
-            url: Storage::disk($disk)->url($key),
+            url: Storage::disk($options->disk)->url($key)
         );
     }
 

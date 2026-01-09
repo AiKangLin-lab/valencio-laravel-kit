@@ -18,9 +18,10 @@ namespace Valencio\LaravelKit\File;
  */
 final readonly class FileUploadResult
 {
-    public function __construct(
+    public function __construct (
         public string $disk,
         public string $path, // 存库用：uploads/20260108/xxx.jpg
-        public string $url,  // 展示用：/storage/uploads/...
-    ) {}
+        public string $url,  // 展示用：/storage/uploads/..
+    ) {
+    }
 }
