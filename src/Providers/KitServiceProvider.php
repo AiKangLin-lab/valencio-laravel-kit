@@ -16,6 +16,7 @@ namespace Valencio\LaravelKit\Providers;
 use Illuminate\Support\ServiceProvider;
 use Valencio\LaravelKit\Export\ExportManager;
 use Valencio\LaravelKit\File\Adapters\COSDiskAdapter;
+use Valencio\LaravelKit\File\Adapters\OSSDiskAdapter;
 use Valencio\LaravelKit\File\Adapters\PublicDiskAdapter;
 use Valencio\LaravelKit\File\Adapters\StorageAdapterRegistry;
 
@@ -48,6 +49,7 @@ class KitServiceProvider extends ServiceProvider
             return new StorageAdapterRegistry([
                 $app->make(PublicDiskAdapter::class),
                 $app->make(COSDiskAdapter::class),
+                $app->make(OSSDiskAdapter::class),
             ]);
         });
     }

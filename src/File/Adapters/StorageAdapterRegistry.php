@@ -14,7 +14,8 @@ declare (strict_types=1);
 namespace Valencio\LaravelKit\File\Adapters;
 
 
-use RuntimeException;
+
+use Valencio\LaravelKit\File\Exceptions\FileException;
 
 /**
  * 存储适配器注册表
@@ -46,11 +47,12 @@ class StorageAdapterRegistry
      *
      * @param string $disk
      * @return StorageAdapterInterface
+     * @throws FileException
      */
     public function get (string $disk): StorageAdapterInterface
     {
         if (!isset($this->adapters[$disk])) {
-            throw new RuntimeException("No adapter found for disk: $disk");
+            throw new FileException("No adapter found for disk: $disk");
         }
 
         return $this->adapters[$disk];

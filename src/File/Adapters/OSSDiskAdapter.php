@@ -5,7 +5,7 @@
 // +----------------------------------------------------------------------
 // | Author:    ValencioKang <ailin1219@foxmail.com>
 // +----------------------------------------------------------------------
-// | FileName:  COSDiskAdapter.php
+// | FileName:  OSSDiskAdapter.php
 // +----------------------------------------------------------------------
 // | Year:      2026/1/9/一月
 // +----------------------------------------------------------------------
@@ -18,7 +18,7 @@ use Illuminate\Support\Facades\Storage;
 use Valencio\LaravelKit\File\Exceptions\FileException;
 use Valencio\LaravelKit\File\FilePathResult;
 
-class COSDiskAdapter implements StorageAdapterInterface
+class OSSDiskAdapter implements StorageAdapterInterface
 {
     /**
      * 获取存储的磁盘名称
@@ -27,12 +27,11 @@ class COSDiskAdapter implements StorageAdapterInterface
      */
     public function disk (): string
     {
-        return 'cos';
+        return 'oss';
     }
 
     /**
-     * 上传文件
-     *
+     * 保存文件
      * @param UploadedFile $file
      * @param FilePathResult $path
      * @return string
@@ -40,13 +39,13 @@ class COSDiskAdapter implements StorageAdapterInterface
      */
     public function putFileAs (UploadedFile $file, FilePathResult $path): string
     {
+
         // putFileAs 返回保存后的相对路径（key）
         $result = Storage::disk($this->disk())->putFileAs(
             $path->directory, // 例如：uploads/20260108
             $file,
             $path->filename   // 例如：xxxx.jpg
         );
-
 
 
         if (!$result) {

@@ -13,10 +13,10 @@ declare (strict_types=1);
 
 namespace Valencio\LaravelKit\File\Adapters;
 
-use Illuminate\Contracts\Filesystem\Filesystem;
+
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use RuntimeException;
+use Valencio\LaravelKit\File\Exceptions\FileException;
 use Valencio\LaravelKit\File\FilePathResult;
 
 /**
@@ -45,6 +45,7 @@ class PublicDiskAdapter implements StorageAdapterInterface
      * @param UploadedFile $file
      * @param FilePathResult $path
      * @return string
+     * @throws FileException
      */
     public function putFileAs (UploadedFile $file, FilePathResult $path): string
     {
@@ -58,7 +59,7 @@ class PublicDiskAdapter implements StorageAdapterInterface
 
 
         if (!$result) {
-            throw new RuntimeException('file save fail');
+            throw new FileException('file save fail');
         }
 
         return $result;

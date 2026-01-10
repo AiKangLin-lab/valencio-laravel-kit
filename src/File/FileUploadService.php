@@ -16,8 +16,9 @@ namespace Valencio\LaravelKit\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Random\RandomException;
-use RuntimeException;
+use Throwable;
 use Valencio\LaravelKit\File\Adapters\StorageAdapterRegistry;
+use Valencio\LaravelKit\File\Exceptions\FileException;
 
 
 /**
@@ -47,6 +48,7 @@ readonly class FileUploadService
      * @param UploadedFile $file 要存储的上传文件对象
      * @return FileUploadResult 文件上传结果对象
      * @throws RandomException
+     * @throws FileException
      */
     public function store (
         UploadedFile   $file,
@@ -68,8 +70,8 @@ readonly class FileUploadService
 
         try {
             $key = $adapter->putFileAs($file, $pathResult);
-        } catch (RuntimeException $e) {
-            throw new RuntimeException($e->getMessage());
+        } catch (Throwable $e) {
+            throw new FileException($e->getMessage());
         }
 
         return new FileUploadResult(
