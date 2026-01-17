@@ -7,14 +7,14 @@
 // +----------------------------------------------------------------------
 // | FileName:  UploadOptions.php
 // +----------------------------------------------------------------------
-// | Year:      2026/1/9/一月
+// | Year:      2026/1/17/一月
 // +----------------------------------------------------------------------
 declare (strict_types=1);
 
-namespace Valencio\LaravelKit\File;
+namespace Valencio\LaravelKit\File\Upload\Options;
 
 /**
- *
+ * 文件上传选项配置类
  */
 final class UploadOptions
 {
@@ -25,7 +25,7 @@ final class UploadOptions
      * @param string|null $appName
      * @param string|null $dateFormat
      */
-    public function __construct (
+    public function __construct(
         public ?string $prefix = null,
         public ?string $namingStrategy = null,
         public ?string $disk = null,
@@ -37,7 +37,7 @@ final class UploadOptions
     /**
      * 应用配置
      */
-    public function resolve (): self
+    public function resolve(): self
     {
         return new self(
             prefix: $this->prefix ?? config('kit.file.prefix', 'uploads'),

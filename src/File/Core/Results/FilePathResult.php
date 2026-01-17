@@ -7,15 +7,14 @@
 // +----------------------------------------------------------------------
 // | FileName:  FilePathResult.php
 // +----------------------------------------------------------------------
-// | Year:      2026/1/8/一月
+// | Year:      2026/1/17/一月
 // +----------------------------------------------------------------------
 declare (strict_types=1);
 
-namespace Valencio\LaravelKit\File;
-
+namespace Valencio\LaravelKit\File\Core\Results;
 
 /**
- *
+ * 文件路径结果对象
  */
 readonly class FilePathResult
 {

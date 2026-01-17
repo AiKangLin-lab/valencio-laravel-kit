@@ -1,0 +1,73 @@
+<?php
+// +----------------------------------------------------------------------
+// | Success, real success,
+// | is being willing to do the things that other people are not.
+// +----------------------------------------------------------------------
+// | Author:    ValencioKang <ailin1219@foxmail.com>
+// +----------------------------------------------------------------------
+// | FileName:  COSDiskAdapter.php
+// +----------------------------------------------------------------------
+// | Year:      2026/1/17/一月
+// +----------------------------------------------------------------------
+declare (strict_types=1);
+
+namespace Valencio\LaravelKit\File\Storage\Adapters;
+
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use Valencio\LaravelKit\File\Core\Contracts\StorageAdapterInterface;
+use Valencio\LaravelKit\File\Core\Results\FilePathResult;
+use Valencio\LaravelKit\File\Exceptions\FileException;
+
+/**
+ * 腾讯云COS存储适配器
+ */
+class COSDiskAdapter implements StorageAdapterInterface
+{
+    public function disk(): string
+    {
+        return 'cos';
+    }
+
+    public function putFileAs(UploadedFile $file, FilePathResult $path): string
+    {
+        $result = Storage::disk($this->disk())->putFileAs(
+            $path->directory,
+            $file,
+            $path->filename
+        );
+
+        if (!$result) {
+            throw new FileException('file save fail');
+        }
+
+        return $result;
+    }
+
+    public function download(string $path, ?string $filename = null): StreamedResponse
+    {
+        if (!$this->exists($path)) {
+            throw new FileException("File not found: {$path}");
+        }
+
+        $filename = $filename ?: basename($path);
+        
+        return Storage::disk($this->disk())->download($path, $filename);
+    }
+
+    public function getDownloadUrl(string $path): string
+    {
+        if (!$this->exists($path)) {
+            throw new FileException("File not found: {$path}");
+        }
+
+        // COS支持临时访问URL
+        return Storage::disk($this->disk())->temporaryUrl($path, now()->addHour());
+    }
+
+    public function exists(string $path): bool
+    {
+        return Storage::disk($this->disk())->exists($path);
+    }
+}

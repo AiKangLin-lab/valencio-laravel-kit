@@ -7,56 +7,35 @@
 // +----------------------------------------------------------------------
 // | FileName:  FileUploadService.php
 // +----------------------------------------------------------------------
-// | Year:      2026/1/8/一月
+// | Year:      2026/1/17/一月
 // +----------------------------------------------------------------------
 declare (strict_types=1);
 
-namespace Valencio\LaravelKit\File;
+namespace Valencio\LaravelKit\File\Upload\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Random\RandomException;
-use Throwable;
-use Valencio\LaravelKit\File\Adapters\StorageAdapterRegistry;
+use Valencio\LaravelKit\File\Core\Results\FileUploadResult;
 use Valencio\LaravelKit\File\Exceptions\FileException;
-
+use Valencio\LaravelKit\File\Storage\Registry\StorageAdapterRegistry;
+use Valencio\LaravelKit\File\Upload\Generators\FilePathGenerator;
+use Valencio\LaravelKit\File\Upload\Options\UploadOptions;
 
 /**
- * 文件上传服务类
- *
- * 该只读类提供文件上传相关的服务功能
- * 使用readonly关键字确保类的不可变性
+ * 文件上传服务
  */
 readonly class FileUploadService
 {
-    /**
-     * FileUploadService constructor.
-     *
-     * @param FilePathGenerator $pathGenerator 文件路径生成器对象
-     * @param StorageAdapterRegistry $adapterRegistry 存储适配器注册对象
-     */
-    public function __construct (
+    public function __construct(
         private FilePathGenerator      $pathGenerator,
         private StorageAdapterRegistry $adapterRegistry,
     ) {
     }
 
-
-    /**
-     * 存储上传的文件到指定磁盘
-     *
-     * @param UploadedFile $file 要存储的上传文件对象
-     * @return FileUploadResult 文件上传结果对象
-     * @throws RandomException
-     * @throws FileException
-     */
-    public function store (
-        UploadedFile   $file,
-        ?UploadOptions $options = null
-    ): FileUploadResult {
+    public function store(UploadedFile $file, ?UploadOptions $options = null): FileUploadResult
+    {
         $options = ($options ?? new UploadOptions())->resolve();
 
-        // 生成文件存储路径
         $pathResult = $this->pathGenerator->generate(
             file: $file,
             appName: $options->appName,
@@ -65,12 +44,11 @@ readonly class FileUploadService
             namingStrategy: $options->namingStrategy
         );
 
-        // 获取指定磁盘的适配器
         $adapter = $this->adapterRegistry->get($options->disk);
-
+        
         try {
             $key = $adapter->putFileAs($file, $pathResult);
-        } catch (Throwable $e) {
+        } catch (\Throwable $e) {
             throw new FileException($e->getMessage());
         }
 
@@ -80,5 +58,4 @@ readonly class FileUploadService
             url: Storage::disk($options->disk)->url($key)
         );
     }
-
 }

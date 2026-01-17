@@ -7,14 +7,15 @@
 // +----------------------------------------------------------------------
 // | FileName:  FilePathGenerator.php
 // +----------------------------------------------------------------------
-// | Year:      2026/1/8/一月
+// | Year:      2026/1/17/一月
 // +----------------------------------------------------------------------
 declare (strict_types=1);
 
-namespace Valencio\LaravelKit\File;
+namespace Valencio\LaravelKit\File\Upload\Generators;
 
 use Illuminate\Http\UploadedFile;
 use Random\RandomException;
+use Valencio\LaravelKit\File\Core\Results\FilePathResult;
 
 /**
  * 文件路径生成器类
@@ -33,7 +34,7 @@ class FilePathGenerator
      * @return FilePathResult 包含文件路径信息的结果对象
      * @throws RandomException
      */
-    public function generate (
+    public function generate(
         UploadedFile $file,
         ?string      $appName = null,
         string       $prefix = 'uploads',
@@ -65,16 +66,14 @@ class FilePathGenerator
         );
     }
 
-
     /**
      * @param UploadedFile $file
      * @return string
      */
-    private function resolveExtension (UploadedFile $file): string
+    private function resolveExtension(UploadedFile $file): string
     {
         return strtolower($file->getClientOriginalExtension() ?: 'bin');
     }
-
 
     /**
      * 生成目录路径
@@ -86,7 +85,7 @@ class FilePathGenerator
      * @param string $dateFormat 日期格式，用于生成日期目录部分
      * @return string 生成的目录路径，使用'/'作为路径分隔符
      */
-    private function generateDirectory (?string $appName, string $prefix, string $dateFormat): string
+    private function generateDirectory(?string $appName, string $prefix, string $dateFormat): string
     {
         $parts = [];
 
@@ -103,7 +102,6 @@ class FilePathGenerator
         return implode('/', $parts);
     }
 
-
     /**
      * 生成上传文件的文件名
      *
@@ -113,7 +111,7 @@ class FilePathGenerator
      * @return string 生成的完整文件名（包含扩展名）
      * @throws RandomException
      */
-    private function generateFilename (UploadedFile $file, string $extension, string $strategy): string
+    private function generateFilename(UploadedFile $file, string $extension, string $strategy): string
     {
         $strategy = strtolower(trim($strategy));
 
@@ -129,7 +127,6 @@ class FilePathGenerator
         return $baseName . '.' . $extension;
     }
 
-
     /**
      * 生成一个随机名称
      *
@@ -139,11 +136,10 @@ class FilePathGenerator
      * @return string 返回一个32字符的十六进制随机字符串
      * @throws RandomException
      */
-    private function randomName (): string
+    private function randomName(): string
     {
         return bin2hex(random_bytes(16));
     }
-
 
     /**
      * 生成文件的哈希名称
@@ -156,7 +152,7 @@ class FilePathGenerator
      * @return string 返回基于文件内容的哈希字符串，如果文件路径无效则返回一个随机字符串
      * @throws RandomException
      */
-    private function hashName (UploadedFile $file, string $algo): string
+    private function hashName(UploadedFile $file, string $algo): string
     {
         $path = $file->getRealPath();
         if ($path === false || $path === '') {
@@ -165,7 +161,6 @@ class FilePathGenerator
 
         return hash_file($algo, $path);
     }
-
 
     /**
      * 获取上传文件的原始文件名（不包含扩展名），并进行格式化处理
@@ -177,7 +172,7 @@ class FilePathGenerator
      * @return string 格式化后的原始文件名，如果原文件名无效则返回随机名称
      * @throws RandomException
      */
-    private function originalName (UploadedFile $file): string
+    private function originalName(UploadedFile $file): string
     {
         $name = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $name = preg_replace('/[^a-zA-Z0-9_\-]/', '_', $name) ?: '';
@@ -185,14 +180,13 @@ class FilePathGenerator
         return $name !== '' ? $name : $this->randomName();
     }
 
-
     /**
      * 清理路径中的无效字符
      *
      * @param string|null $value 要清理的字符串
      * @return string|null 清理后的字符串，如果输入为空则返回 null
      */
-    private function sanitizePathSegment (?string $value): ?string
+    private function sanitizePathSegment(?string $value): ?string
     {
         if ($value === null) {
             return null;

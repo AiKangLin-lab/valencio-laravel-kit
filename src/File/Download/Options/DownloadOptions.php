@@ -5,31 +5,30 @@
 // +----------------------------------------------------------------------
 // | Author:    ValencioKang <ailin1219@foxmail.com>
 // +----------------------------------------------------------------------
-// | FileName:  FileException.php
+// | FileName:  DownloadOptions.php
 // +----------------------------------------------------------------------
 // | Year:      2026/1/17/一月
 // +----------------------------------------------------------------------
 declare (strict_types=1);
 
-namespace Valencio\LaravelKit\File\Exceptions;
-
-use Exception;
-use Throwable;
+namespace Valencio\LaravelKit\File\Download\Options;
 
 /**
- * 文件异常类，用于处理文件相关的错误。
+ * 文件下载选项
  */
-class FileException extends Exception
+final class DownloadOptions
 {
-    /**
-     * 构造上传异常
-     *
-     * @param string $message 异常信息
-     * @param int $code 异常代码
-     * @param Throwable|null $previous 前置异常
-     */
-    public function __construct(string $message = "", int $code = 0, ?Throwable $previous = null)
+    public function __construct(
+        public ?string $disk = null,
+        public ?string $filename = null,
+    ) {
+    }
+
+    public function resolve(): self
     {
-        parent::__construct($message, $code, $previous);
+        return new self(
+            disk: $this->disk ?? config('kit.file.disk', 'public'),
+            filename: $this->filename,
+        );
     }
 }

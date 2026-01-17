@@ -7,14 +7,13 @@
 // +----------------------------------------------------------------------
 // | FileName:  StorageAdapterRegistry.php
 // +----------------------------------------------------------------------
-// | Year:      2026/1/8/一月
+// | Year:      2026/1/17/一月
 // +----------------------------------------------------------------------
 declare (strict_types=1);
 
-namespace Valencio\LaravelKit\File\Adapters;
+namespace Valencio\LaravelKit\File\Storage\Registry;
 
-
-
+use Valencio\LaravelKit\File\Core\Contracts\StorageAdapterInterface;
 use Valencio\LaravelKit\File\Exceptions\FileException;
 
 /**
@@ -34,13 +33,12 @@ class StorageAdapterRegistry
     /**
      * @param iterable<StorageAdapterInterface> $adapters
      */
-    public function __construct (iterable $adapters)
+    public function __construct(iterable $adapters)
     {
         foreach ($adapters as $adapter) {
             $this->adapters[$adapter->disk()] = $adapter;
         }
     }
-
 
     /**
      * 根据 disk 获取适配器
@@ -49,7 +47,7 @@ class StorageAdapterRegistry
      * @return StorageAdapterInterface
      * @throws FileException
      */
-    public function get (string $disk): StorageAdapterInterface
+    public function get(string $disk): StorageAdapterInterface
     {
         if (!isset($this->adapters[$disk])) {
             throw new FileException("No adapter found for disk: $disk");

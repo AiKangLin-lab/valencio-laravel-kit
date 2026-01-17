@@ -7,18 +7,18 @@
 // +----------------------------------------------------------------------
 // | FileName:  FileUploadResult.php
 // +----------------------------------------------------------------------
-// | Year:      2026/1/8/一月
+// | Year:      2026/1/17/一月
 // +----------------------------------------------------------------------
 declare (strict_types=1);
 
-namespace Valencio\LaravelKit\File;
+namespace Valencio\LaravelKit\File\Core\Results;
 
 /**
  * 文件上传结果（核心层返回值对象）
  */
 final readonly class FileUploadResult
 {
-    public function __construct (
+    public function __construct(
         public string $disk,
         public string $path, // 存库用：uploads/20260108/xxx.jpg
         public string $url,  // 展示用：/storage/uploads/..
