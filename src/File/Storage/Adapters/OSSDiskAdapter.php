@@ -25,12 +25,21 @@ use Valencio\LaravelKit\File\Exceptions\FileException;
  */
 class OSSDiskAdapter implements StorageAdapterInterface
 {
-    public function disk(): string
+    /**
+     * @return string
+     */
+    public function disk (): string
     {
         return 'oss';
     }
 
-    public function putFileAs(UploadedFile $file, FilePathResult $path): string
+    /**
+     * @param UploadedFile $file
+     * @param FilePathResult $path
+     * @return string
+     * @throws FileException
+     */
+    public function putFileAs (UploadedFile $file, FilePathResult $path): string
     {
         $result = Storage::disk($this->disk())->putFileAs(
             $path->directory,
@@ -45,28 +54,29 @@ class OSSDiskAdapter implements StorageAdapterInterface
         return $result;
     }
 
-    public function download(string $path, ?string $filename = null): StreamedResponse
+    /**
+     * @param string $path
+     * @param string|null $filename
+     * @return StreamedResponse
+     * @throws FileException
+     */
+    public function download (string $path, ?string $filename = null): StreamedResponse
     {
         if (!$this->exists($path)) {
             throw new FileException("File not found: {$path}");
         }
 
         $filename = $filename ?: basename($path);
-        
+
         return Storage::disk($this->disk())->download($path, $filename);
     }
 
-    public function getDownloadUrl(string $path): string
-    {
-        if (!$this->exists($path)) {
-            throw new FileException("File not found: {$path}");
-        }
 
-        // OSS支持临时访问URL
-        return Storage::disk($this->disk())->temporaryUrl($path, now()->addHour());
-    }
-
-    public function exists(string $path): bool
+    /**
+     * @param string $path
+     * @return bool
+     */
+    public function exists (string $path): bool
     {
         return Storage::disk($this->disk())->exists($path);
     }

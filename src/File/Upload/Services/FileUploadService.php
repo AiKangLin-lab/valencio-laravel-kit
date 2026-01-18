@@ -15,6 +15,8 @@ namespace Valencio\LaravelKit\File\Upload\Services;
 
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
+use Random\RandomException;
+use Throwable;
 use Valencio\LaravelKit\File\Core\Results\FileUploadResult;
 use Valencio\LaravelKit\File\Exceptions\FileException;
 use Valencio\LaravelKit\File\Storage\Registry\StorageAdapterRegistry;
@@ -26,13 +28,20 @@ use Valencio\LaravelKit\File\Upload\Options\UploadOptions;
  */
 readonly class FileUploadService
 {
-    public function __construct(
+    public function __construct (
         private FilePathGenerator      $pathGenerator,
         private StorageAdapterRegistry $adapterRegistry,
     ) {
     }
 
-    public function store(UploadedFile $file, ?UploadOptions $options = null): FileUploadResult
+    /**
+     * @param UploadedFile $file
+     * @param UploadOptions|null $options
+     * @return FileUploadResult
+     * @throws FileException
+     * @throws RandomException
+     */
+    public function store (UploadedFile $file, ?UploadOptions $options = null): FileUploadResult
     {
         $options = ($options ?? new UploadOptions())->resolve();
 
@@ -45,10 +54,10 @@ readonly class FileUploadService
         );
 
         $adapter = $this->adapterRegistry->get($options->disk);
-        
+
         try {
             $key = $adapter->putFileAs($file, $pathResult);
-        } catch (\Throwable $e) {
+        } catch (Throwable $e) {
             throw new FileException($e->getMessage());
         }
 

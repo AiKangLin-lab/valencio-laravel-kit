@@ -25,25 +25,21 @@ interface StorageAdapterInterface
     /**
      * 返回当前适配器支持的 disk 名称
      */
-    public function disk(): string;
+    public function disk (): string;
 
     /**
      * 上传文件
      */
-    public function putFileAs(UploadedFile $file, FilePathResult $path): string;
+    public function putFileAs (UploadedFile $file, FilePathResult $path): string;
 
     /**
      * 下载文件
      */
-    public function download(string $path, ?string $filename = null): StreamedResponse;
+    public function download (string $path, ?string $filename = null): StreamedResponse;
 
-    /**
-     * 获取下载URL
-     */
-    public function getDownloadUrl(string $path): string;
 
     /**
      * 检查文件是否存在
      */
-    public function exists(string $path): bool;
+    public function exists (string $path): bool;
 }

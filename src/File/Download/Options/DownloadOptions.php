@@ -18,13 +18,20 @@ namespace Valencio\LaravelKit\File\Download\Options;
  */
 final class DownloadOptions
 {
-    public function __construct(
+    /**
+     * @param string|null $disk
+     * @param string|null $filename
+     */
+    public function __construct (
         public ?string $disk = null,
         public ?string $filename = null,
     ) {
     }
 
-    public function resolve(): self
+    /**
+     * @return self
+     */
+    public function resolve (): self
     {
         return new self(
             disk: $this->disk ?? config('kit.file.disk', 'public'),

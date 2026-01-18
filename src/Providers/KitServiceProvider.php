@@ -15,10 +15,11 @@ namespace Valencio\LaravelKit\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Valencio\LaravelKit\Export\ExportManager;
-use Valencio\LaravelKit\File\Adapters\COSDiskAdapter;
-use Valencio\LaravelKit\File\Adapters\OSSDiskAdapter;
-use Valencio\LaravelKit\File\Adapters\PublicDiskAdapter;
-use Valencio\LaravelKit\File\Adapters\StorageAdapterRegistry;
+use Valencio\LaravelKit\File\Storage\Adapters\COSDiskAdapter;
+use Valencio\LaravelKit\File\Storage\Adapters\OSSDiskAdapter;
+use Valencio\LaravelKit\File\Storage\Adapters\PublicDiskAdapter;
+use Valencio\LaravelKit\File\Storage\Registry\StorageAdapterRegistry;
+
 
 /**
  * Laravel Kit 包服务提供者
@@ -33,7 +34,7 @@ class KitServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function register(): void
+    public function register (): void
     {
         // 合并模块配置
         $this->mergeConfigFrom(__DIR__ . '/../../config/kit-file.php', 'kit.file');
@@ -45,7 +46,7 @@ class KitServiceProvider extends ServiceProvider
         });
 
         // 注册 registry，并注入所有适配器
-        $this->app->singleton(StorageAdapterRegistry::class, function ($app) {
+        $this->app->singleton(StorageAdapterRegistry::class, function($app) {
             return new StorageAdapterRegistry([
                 $app->make(PublicDiskAdapter::class),
                 $app->make(COSDiskAdapter::class),
@@ -59,7 +60,7 @@ class KitServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    public function boot(): void
+    public function boot (): void
     {
         // 加载上传模块的语言文件，命名空间为 kit
         $this->loadTranslationsFrom(__DIR__ . '/../../resources/lang', 'kit');
@@ -68,7 +69,7 @@ class KitServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             // 按模块分别发布配置文件，用户可按需选择
             $this->publishes([
-                __DIR__.'/../../config/kit-file.php' => config_path('kit/file.php'),
+                __DIR__ . '/../../config/kit-file.php' => config_path('kit/file.php'),
             ], 'kit-file-config');
 
             // 后续新增模块时，只需添加对应的 publishes 行
@@ -79,7 +80,7 @@ class KitServiceProvider extends ServiceProvider
 
             // 发布所有语言包（一次性发布所有语言文件）
             $this->publishes([
-                __DIR__.'/../../resources/lang' => $this->app->langPath('vendor/kit'),
+                __DIR__ . '/../../resources/lang' => $this->app->langPath('vendor/kit'),
             ], 'kit-lang');
         }
     }
