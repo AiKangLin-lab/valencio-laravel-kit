@@ -85,8 +85,6 @@ class ExportManager
         $this->fileName = $fileName;
         $this->columnsWith = $columnsWith;
 
-        set_time_limit(300);
-        ini_set('memory_limit', '1000M');
 
         return $this;
     }
