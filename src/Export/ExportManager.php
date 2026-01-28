@@ -14,7 +14,6 @@ declare (strict_types=1);
 namespace Valencio\LaravelKit\Export;
 
 use Illuminate\Contracts\Foundation\Application;
-use Illuminate\Support\LazyCollection;
 use Vtiful\Kernel\Excel;
 use Vtiful\Kernel\Format;
 
@@ -25,11 +24,11 @@ class ExportManager
      */
     protected Application $app;
 
+
     /**
-     *  数据
-     * @var LazyCollection
+     * @var iterable
      */
-    private LazyCollection $data;
+    private iterable $data;
 
     /**
      * 表头
@@ -54,7 +53,6 @@ class ExportManager
     private array $columnsWith = [];
 
 
-
     /**
      * 构造函数
      * @param Application $app
@@ -67,18 +65,18 @@ class ExportManager
 
     /**
      * @param array $header
-     * @param LazyCollection $data
+     * @param iterable $data
      * @param string $fileName
      * @param array $columnsWith
      * @param int $maxExportCount
      * @return self
      */
     public function assign (
-        array          $header,
-        LazyCollection $data,
-        string         $fileName = '',
-        array          $columnsWith = [],
-        int            $maxExportCount = 500000
+        array    $header,
+        iterable $data,
+        string   $fileName = '',
+        array    $columnsWith = [],
+        int      $maxExportCount = 500000
     ): self {
         $this->header = $header;
         $this->data = $data;
@@ -204,26 +202,42 @@ class ExportManager
      * @param $fileObject
      * @return void
      */
+    /**
+     * 写入数据
+     *
+     * @param $fileObject
+     * @return void
+     */
     private function writeTableData ($fileObject): void
     {
-        $fileObject->setCurrentLine(2); // 设置行指针
+        $currentLine = 2; // ✅ 当前写入行（从第2行开始，1行是表头）
+        $fileObject->setCurrentLine($currentLine);
 
-        $batchSize = 1000; // 批量写入大小
+        $batchSize = 1000;
         $batch = [];
 
-        $this->data->each(function($row) use ($fileObject, &$batch, $batchSize) {
+        foreach ($this->data as $row) {
             $batch[] = $row;
 
-            // 当批次达到指定大小时，批量写入
             if (count($batch) >= $batchSize) {
+                // ✅ 写入这一批
                 $fileObject->data($batch);
+
+                // ✅ 关键：推进行指针，否则会覆盖前面的数据
+                $currentLine += count($batch);
+                $fileObject->setCurrentLine($currentLine);
+
                 $batch = [];
             }
-        });
+        }
 
         // 写入剩余的数据
         if (!empty($batch)) {
             $fileObject->data($batch);
+
+            // ✅ 同样推进一下（虽然最后一次不推进也无所谓，但保持一致更稳）
+            $currentLine += count($batch);
+            $fileObject->setCurrentLine($currentLine);
         }
     }
 
