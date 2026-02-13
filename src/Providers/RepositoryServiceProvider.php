@@ -56,6 +56,7 @@ class RepositoryServiceProvider extends ServiceProvider
             // 开发环境：实时扫描，避免阻塞开发体验
             $bindings = RepositoryScanner::scan($basePath);
         }
+        
 
         // 统一绑定到容器
         foreach ($bindings as $interface => $repository) {
