@@ -59,17 +59,15 @@ class Client
     {
         $availableChannels = array_keys(config('logging.channels', []));
 
-        if (empty($this->logChannel) || empty($this->infoLogChannel)) {
+        if (empty($this->logChannel)) {
             throw new IntegrationException('日志通道配置不能为空');
         }
 
         if (!in_array($this->logChannel, $availableChannels)) {
-            throw new IntegrationException("错误日志通道 '{$this->logChannel}' 不存在");
+            throw new IntegrationException("日志通道 '{$this->logChannel}' 不存在");
         }
 
-        if (!in_array($this->infoLogChannel, $availableChannels)) {
-            throw new IntegrationException("信息日志通道 '{$this->infoLogChannel}' 不存在");
-        }
+
     }
 
     /**
