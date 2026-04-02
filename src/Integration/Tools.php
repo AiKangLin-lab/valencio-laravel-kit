@@ -20,9 +20,9 @@ use Throwable;
 
 /**
  * 集成服务工具特征
- * 
+ *
  * 提供响应处理和日志记录等工具方法
- * 
+ *
  * @package Valencio\LaravelKit\Integration
  * @author ValencioKang <ailin1219@foxmail.com>
  * @since 2025-08-13
@@ -38,7 +38,7 @@ trait Tools
     public function handleResponse(Response $response): bool
     {
         $this->response = $response;
-        
+
         // 检查HTTP状态码是否失败
         if ($response->failed()) {
             $this->writeLog(
@@ -64,7 +64,6 @@ trait Tools
 
         // 记录成功日志
         if ($this->enableLog) {
-            $this->logChannel = $this->infoLogChannel;
             $this->writeLog(logType: 'info');
         }
 
@@ -78,7 +77,7 @@ trait Tools
      */
     private function hasBusinessError(): bool
     {
-        return $this->resultCollection->has($this->errorCodeField) 
+        return $this->resultCollection->has($this->errorCodeField)
             && $this->resultCollection[$this->errorCodeField] != $this->successCode;
     }
 
@@ -96,7 +95,7 @@ trait Tools
         ?string $otherDescription = null,
     ): void {
         $logContent = $this->buildLogContent($exception, $otherDescription);
-        
+
         Log::channel($this->logChannel)->{$logType}($logContent);
     }
 
@@ -118,7 +117,7 @@ trait Tools
         if ($this->description) {
             $content[] = 'Description: ' . $this->description;
         }
-        
+
         if ($otherDescription) {
             $content[] = 'OtherDescription: ' . $otherDescription;
         }

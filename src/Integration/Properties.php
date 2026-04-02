@@ -111,18 +111,11 @@ trait Properties
     public bool $enableLog = false;
 
     /**
-     * 错误日志通道名称
+     * 日志通道名称
      *
      * @var string
      */
-    public string $logChannel = 'integrations_error';
-
-    /**
-     * 信息日志通道名称
-     *
-     * @var string
-     */
-    public string $infoLogChannel = 'integrations_info';
+    public string $logChannel = 'integrations';
 
     /**
      * 响应结果数组
